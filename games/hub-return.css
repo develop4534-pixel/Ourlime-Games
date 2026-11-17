@@ -22,6 +22,10 @@
     backdrop-filter: blur(8px);
 }
 
+.ourlime-hub-return[hidden] {
+    display: none !important;
+}
+
 .ourlime-hub-return:hover,
 .ourlime-hub-return:focus-visible {
     background: #40e0d0 !important;
