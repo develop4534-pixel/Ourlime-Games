@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b5fa8">
+<meta name="description" content="CHALLENGE CARAVAN — Connect, Explore, Win. A communal adventure of short mini-games.">
+<title>Challenge Caravan</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffb300' stroke='%235a3410' stroke-width='4'/%3E%3Cpath d='M32 10l7 22-7 22-7-22z' fill='%23d6342a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/ui.css">
+<link rel="stylesheet" href="css/screens.css">
+<link rel="stylesheet" href="css/screens2.css">
+<link rel="stylesheet" href="css/games.css">
+</head>
+<body>
+<div id="app" data-state="BOOT">
+
+  <!-- BOOT / LOADING -->
+  <section id="boot" class="screen active" aria-label="Loading">
+    <div class="boot-card">
+      <div class="boot-compass" aria-hidden="true"></div>
+      <h2 class="boot-title">CHALLENGE <span>CARAVAN</span></h2>
+      <div class="boot-track" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="boot-bar"></i></div>
+      <p id="boot-msg" class="boot-msg">Packing the caravan…</p>
+      <noscript><p class="boot-msg">This game needs JavaScript to run.</p></noscript>
+    </div>
+  </section>
+
+  <!-- WELCOME (first screen) -->
+  <section id="welcome" class="screen" aria-labelledby="welcome-title">
+    <div class="w-backdrop" aria-hidden="true"></div>
+    <div class="w-stage">
+      <div class="w-art">
+        <img class="w-img" id="w-img" src="assets/key-art.jpg" alt="Four friendly adventurers with backpacks stand before a tropical island, a waterfall and ancient ruins under the CHALLENGE CARAVAN logo." decoding="async" fetchpriority="high" draggable="false">
+        <div class="w-fx" aria-hidden="true">
+          <i class="cloud c1"></i><i class="cloud c2"></i><i class="cloud c3"></i>
+          <svg class="bird b1" viewBox="0 0 24 10"><path d="M1 8Q6 0 12 6Q18 0 23 8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+          <svg class="bird b2" viewBox="0 0 24 10"><path d="M1 8Q6 0 12 6Q18 0 23 8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+          <svg class="bird b3" viewBox="0 0 24 10"><path d="M1 8Q6 0 12 6Q18 0 23 8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+          <i class="glint g1"></i><i class="glint g2"></i><i class="glint g3"></i><i class="glint g4"></i><i class="glint g5"></i><i class="glint g6"></i>
+          <i class="mote m1"></i><i class="mote m2"></i><i class="mote m3"></i><i class="mote m4"></i><i class="mote m5"></i><i class="mote m6"></i><i class="mote m7"></i><i class="mote m8"></i>
+          <i class="sheen"></i>
+          <i class="balloon-far"></i>
+        </div>
+      </div>
+    </div>
+    <footer class="w-foot">
+      <h1 id="welcome-title" class="sr-only">CHALLENGE CARAVAN — Connect, Explore, Win</h1>
+      <p class="w-line">Different People. One Amazing Journey.</p>
+      <button id="btn-welcome" class="btn btn-cta" type="button"><span>WELCOME</span></button>
+    </footer>
+  </section>
+
+  <!-- MAIN MENU -->
+  <section id="menu" class="screen" aria-label="Main menu">
+    <div class="scene" aria-hidden="true">
+      <i class="sun"></i><i class="cloud c1"></i><i class="cloud c2"></i><i class="cloud c3"></i>
+      <svg class="scene-svg" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMax slice">
+        <path d="M0 250 Q120 150 220 230 Q300 120 420 240 Q520 180 600 250 L600 400 L0 400Z" fill="#2f8f6a" opacity=".9"/>
+        <path d="M560 260 Q700 80 790 200 Q860 120 1000 250 L1000 400 L560 400Z" fill="#3aa076"/>
+        <path d="M640 230 L700 120 L740 170 L790 90 L860 230Z" fill="#7b8c9a" opacity=".85"/>
+        <path d="M0 330 Q250 300 500 330 T1000 320 L1000 400 L0 400Z" fill="#17a2c9" opacity=".9"/>
+      </svg>
+      <i class="bird b1"></i><i class="bird b2"></i><i class="waves"></i>
+    </div>
+    <div class="menu-wrap">
+      <header class="menu-brand">
+        <div class="logo" role="img" aria-label="Challenge Caravan">
+          <span class="logo-1">CHALLENGE</span><span class="logo-2">CARAVAN</span>
+        </div>
+        <div class="sign-tag"><span>CONNECT</span><b>•</b><span>EXPLORE</span><b>•</b><span>WIN</span></div>
+      </header>
+      <nav class="menu-list" aria-label="Main menu">
+        <button id="btn-start" class="btn btn-primary btn-xl" type="button"><span id="start-label">START JOURNEY</span></button>
+        <div class="menu-grid">
+          <button id="btn-challenges" class="btn" type="button"><i class="ico ico-target" aria-hidden="true"></i><span>CHALLENGES</span></button>
+          <button id="btn-map" class="btn" type="button"><i class="ico ico-map" aria-hidden="true"></i><span>WORLD MAP</span></button>
+          <button id="btn-community" class="btn" type="button"><i class="ico ico-people" aria-hidden="true"></i><span>COMMUNITY</span></button>
+          <button id="btn-rewards" class="btn" type="button"><i class="ico ico-gift" aria-hidden="true"></i><span>REWARDS</span></button>
+          <button id="btn-howto" class="btn" type="button"><i class="ico ico-help" aria-hidden="true"></i><span>HOW TO PLAY</span></button>
+          <button id="btn-settings" class="btn" type="button"><i class="ico ico-gear" aria-hidden="true"></i><span>SETTINGS</span></button>
+        </div>
+      </nav>
+      <aside class="menu-side" aria-label="Expedition status">
+        <div class="crew" id="menu-crew" aria-hidden="true"></div>
+        <div class="card status-card">
+          <h2>Expedition Log</h2>
+          <dl>
+            <div><dt>Journey Points</dt><dd id="menu-jp">0</dd></div>
+            <div><dt>Stars</dt><dd id="menu-stars">0 / 24</dd></div>
+            <div><dt>Next stop</dt><dd id="menu-next">—</dd></div>
+          </dl>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- WORLD MAP -->
+  <section id="map" class="screen" aria-label="World map">
+    <header class="topbar">
+      <button class="btn btn-icon" id="map-back" type="button" aria-label="Back to main menu"><i class="ico ico-back" aria-hidden="true"></i></button>
+      <h2 class="topbar-title">World Map</h2>
+      <div class="chips">
+        <span class="chip" title="Journey Points"><i class="ico ico-compass" aria-hidden="true"></i><b id="map-jp">0</b><span class="sr-only"> Journey Points</span></span>
+        <span class="chip" title="Stars"><i class="ico ico-star" aria-hidden="true"></i><b id="map-stars">0</b><span class="sr-only"> stars</span></span>
+        <button class="btn btn-icon" id="map-community" type="button" aria-label="Community expedition"><i class="ico ico-people" aria-hidden="true"></i></button>
+      </div>
+    </header>
+    <div class="map-stage" id="map-stage">
+      <div class="map-box" id="map-box">
+        <svg id="map-svg" class="map-svg" aria-hidden="true" focusable="false"></svg>
+        <div id="map-nodes" class="map-nodes" role="group" aria-label="Destinations"></div>
+        <div id="map-caravan" class="caravan-marker" aria-hidden="true"></div>
+        <div id="map-confetti" class="map-fx" aria-hidden="true"></div>
+      </div>
+      <p id="map-hint" class="map-hint" role="status"></p>
+    </div>
+    <aside id="dest-panel" class="dest-panel" aria-live="polite" hidden>
+      <button class="btn btn-icon dest-close" id="dest-close" type="button" aria-label="Close destination panel"><i class="ico ico-x" aria-hidden="true"></i></button>
+      <h3 id="dp-name">Destination</h3>
+      <p class="dp-type"><i class="ico" id="dp-ico" aria-hidden="true"></i><span id="dp-type">Challenge</span></p>
+      <dl class="dp-stats">
+        <div><dt>Difficulty</dt><dd id="dp-diff"></dd></div>
+        <div><dt>Best score</dt><dd id="dp-best">—</dd></div>
+        <div><dt>Stars</dt><dd id="dp-stars"></dd></div>
+        <div><dt>Reward</dt><dd id="dp-reward"></dd></div>
+      </dl>
+      <button id="dp-play" class="btn btn-primary" type="button"><span>PLAY</span></button>
+    </aside>
+  </section>
+
+  <!-- CHALLENGE INTRO -->
+  <section id="intro" class="screen" aria-labelledby="intro-title">
+    <div class="intro-card card parchment" role="group">
+      <div class="intro-art" id="intro-art" aria-hidden="true"></div>
+      <div class="intro-body">
+        <p class="eyebrow" id="intro-eyebrow">Destination 1</p>
+        <h2 id="intro-title">Challenge</h2>
+        <p class="goal" id="intro-goal"></p>
+        <ul class="howlist" id="intro-controls"></ul>
+        <div class="row">
+          <button id="intro-back" class="btn" type="button"><span>BACK</span></button>
+          <button id="intro-go" class="btn btn-primary" type="button"><span>LET'S GO!</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORY INTRO (first journey) -->
+  <section id="story" class="screen" aria-labelledby="story-title">
+    <div class="intro-card card parchment">
+      <div class="intro-art" id="story-art" aria-hidden="true"></div>
+      <div class="intro-body">
+        <p class="eyebrow">Welcome aboard, Explorer</p>
+        <h2 id="story-title">The caravan is ready!</h2>
+        <p class="goal">Eight destinations. Three kinds of challenge. Every finished challenge pushes the caravan one step further. Pick your strength — speed, puzzles or sharp eyes — and let's roll.</p>
+        <div class="row"><button id="story-go" class="btn btn-primary" type="button"><span>TO THE MAP</span></button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="screen" aria-label="Challenge">
+    <header class="hud" id="hud">
+      <button id="hud-pause" class="btn btn-icon" type="button" aria-label="Pause"><i class="ico ico-pause" aria-hidden="true"></i></button>
+      <div class="hud-mid">
+        <p id="hud-title" class="hud-title">Challenge</p>
+        <p id="hud-obj" class="hud-obj" aria-live="polite"></p>
+      </div>
+      <div class="hud-right">
+        <div class="hud-stat"><span class="hud-lbl" id="hud-lbl1">Score</span><b id="hud-score">0</b></div>
+        <div class="hud-stat"><span class="hud-lbl" id="hud-lbl2">Time</span><b id="hud-aux">0</b></div>
+      </div>
+    </header>
+    <div class="play" id="play">
+      <canvas id="cv" class="cv" aria-label="Game area" role="img"></canvas>
+      <div id="puzzle" class="puzzle" hidden></div>
+      <div id="game-banner" class="game-banner" aria-live="assertive"></div>
+      <div id="game-fx" class="game-fx" aria-hidden="true"></div>
+    </div>
+    <div class="controls" id="controls">
+      <div class="ctl ctl-dash" id="ctl-dash" hidden>
+        <button id="tc-left" class="btn btn-ctl" type="button" aria-label="Move left"><i class="ico ico-left" aria-hidden="true"></i></button>
+        <button id="tc-jump" class="btn btn-ctl btn-ctl-jump" type="button" aria-label="Jump"><i class="ico ico-up" aria-hidden="true"></i><span>JUMP</span></button>
+        <button id="tc-right" class="btn btn-ctl" type="button" aria-label="Move right"><i class="ico ico-right" aria-hidden="true"></i></button>
+      </div>
+      <div class="ctl ctl-snap" id="ctl-snap" hidden>
+        <ul id="snap-list" class="snap-list" aria-label="Discovery checklist"></ul>
+        <div class="snap-actions">
+          <button id="snap-hint" class="btn" type="button"><i class="ico ico-bulb" aria-hidden="true"></i><span>HINT</span></button>
+          <button id="snap-btn" class="btn btn-primary btn-snap" type="button"><i class="ico ico-camera" aria-hidden="true"></i><span>SNAP</span></button>
+        </div>
+      </div>
+      <div class="ctl ctl-puzzle" id="ctl-puzzle" hidden>
+        <div class="pz-stat"><span>Moves</span><b id="pz-moves">0</b></div>
+        <div class="pz-stat"><span>Par</span><b id="pz-par">0</b></div>
+        <button id="pz-hint" class="btn" type="button"><i class="ico ico-bulb" aria-hidden="true"></i><span>HINT</span></button>
+      </div>
+    </div>
+
+    <div class="overlay" id="pause" role="dialog" aria-modal="true" aria-labelledby="pause-title" hidden>
+      <div class="card panel pause-card">
+        <h2 id="pause-title" class="ribbon">PAUSED</h2>
+        <div class="stack">
+          <button id="p-resume" class="btn btn-primary" type="button"><span>RESUME</span></button>
+          <button id="p-restart" class="btn" type="button"><span>RESTART</span></button>
+          <button id="p-how" class="btn" type="button"><span>HOW TO PLAY</span></button>
+          <button id="p-settings" class="btn" type="button"><span>SETTINGS</span></button>
+          <button id="p-map" class="btn btn-danger" type="button"><span>RETURN TO MAP</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="overlay countdown" id="countdown" aria-hidden="true" hidden><b id="countdown-n">3</b></div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="screen" aria-labelledby="res-title">
+    <div class="res-card card parchment">
+      <p class="eyebrow" id="res-dest">Destination</p>
+      <h2 id="res-title" class="res-title">Challenge Complete!</h2>
+      <div class="res-stars" id="res-stars" aria-label="Stars earned"></div>
+      <div class="res-grid">
+        <div class="res-stat"><span>Score</span><b id="res-score">0</b></div>
+        <div class="res-stat"><span id="res-k2">Accuracy</span><b id="res-v2">—</b></div>
+        <div class="res-stat"><span>Personal best</span><b id="res-best">0</b></div>
+        <div class="res-stat res-jp"><span>Journey Points</span><b id="res-jp">+0</b></div>
+      </div>
+      <ul class="res-notes" id="res-notes"></ul>
+      <div class="route-strip" id="route-strip" aria-label="Caravan progress"></div>
+      <p class="res-msg" id="res-msg" role="status"></p>
+      <div class="row res-actions">
+        <button id="res-again" class="btn" type="button"><span>PLAY AGAIN</span></button>
+        <button id="res-continue" class="btn btn-primary" type="button"><span>CONTINUE JOURNEY</span></button>
+        <button id="res-map" class="btn" type="button"><span>WORLD MAP</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- REWARDS -->
+  <section id="rewards" class="screen" aria-label="Rewards">
+    <header class="topbar">
+      <button class="btn btn-icon" data-back type="button" aria-label="Back"><i class="ico ico-back" aria-hidden="true"></i></button>
+      <h2 class="topbar-title">Rewards</h2>
+      <div class="chips"><span class="chip"><i class="ico ico-compass" aria-hidden="true"></i><b id="rw-jp">0</b><span class="sr-only"> Journey Points</span></span></div>
+    </header>
+    <div class="scroll-area" id="rw-body"></div>
+  </section>
+
+  <!-- COMMUNITY -->
+  <section id="community" class="screen" aria-label="Community expedition">
+    <header class="topbar">
+      <button class="btn btn-icon" data-back type="button" aria-label="Back"><i class="ico ico-back" aria-hidden="true"></i></button>
+      <h2 class="topbar-title">Community Expedition</h2>
+    </header>
+    <div class="scroll-area" id="cm-body"></div>
+  </section>
+
+  <!-- CHALLENGES -->
+  <section id="challenges" class="screen" aria-label="Challenges">
+    <header class="topbar">
+      <button class="btn btn-icon" data-back type="button" aria-label="Back"><i class="ico ico-back" aria-hidden="true"></i></button>
+      <h2 class="topbar-title">Challenges</h2>
+    </header>
+    <div class="scroll-area" id="ch-body"></div>
+  </section>
+
+  <!-- HOW TO PLAY -->
+  <section id="howto" class="screen" aria-label="How to play">
+    <header class="topbar">
+      <button class="btn btn-icon" data-back type="button" aria-label="Back"><i class="ico ico-back" aria-hidden="true"></i></button>
+      <h2 class="topbar-title">How to Play</h2>
+    </header>
+    <div class="scroll-area" id="ht-body"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings" class="screen" aria-label="Settings">
+    <header class="topbar">
+      <button class="btn btn-icon" data-back type="button" aria-label="Back"><i class="ico ico-back" aria-hidden="true"></i></button>
+      <h2 class="topbar-title">Settings</h2>
+    </header>
+    <div class="scroll-area" id="st-body"></div>
+  </section>
+
+  <!-- Shared overlays -->
+  <div class="overlay" id="confirm" role="alertdialog" aria-modal="true" aria-labelledby="cf-title" aria-describedby="cf-text" hidden>
+    <div class="card panel confirm-card">
+      <h2 id="cf-title" class="ribbon">Are you sure?</h2>
+      <p id="cf-text"></p>
+      <div class="row">
+        <button id="cf-no" class="btn" type="button"><span>CANCEL</span></button>
+        <button id="cf-yes" class="btn btn-danger" type="button"><span>CONFIRM</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="overlay" id="reveal" role="dialog" aria-modal="true" aria-labelledby="rv-title" hidden>
+    <div class="card panel reveal-card">
+      <p class="eyebrow">New reward!</p>
+      <div class="reveal-ico" id="rv-ico" aria-hidden="true"></div>
+      <h2 id="rv-title">Reward</h2>
+      <p id="rv-text"></p>
+      <button id="rv-ok" class="btn btn-primary" type="button"><span>NICE!</span></button>
+    </div>
+  </div>
+  <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+  <div id="wipe" class="wipe" aria-hidden="true"></div>
+  <div id="rotate-note" class="rotate-note" hidden></div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/characters.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/map.js"></script>
+<script src="js/screens.js"></script>
+<script src="js/game-base.js"></script>
+<script src="js/dash.js"></script>
+<script src="js/puzzle.js"></script>
+<script src="js/snap.js"></script>
+<script src="js/main.js"></script>
+<script src="../hub-return.js" defer></script></body>
+</html>

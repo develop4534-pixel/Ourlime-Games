@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glitch Garden</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1b6ee0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='36' r='24' fill='%23fff' stroke='%231e63e9' stroke-width='5'/%3E%3Crect x='14' y='26' width='36' height='20' rx='10' fill='%23101a2e'/%3E%3Cpath d='M20 38q4-6 8 0M36 38q4-6 8 0' stroke='%2319d3ff' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M32 12q-2-8 8-8 0 8-8 8z' fill='%2335c24a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<noscript><div class="noscript">Glitch Garden needs JavaScript enabled to run.</div></noscript>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="#fff"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="#fff"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="#fff"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="#fff"/><path d="M16 9l6 6M22 9l-6 6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 4l-9 8 9 8" stroke="#fff" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 4l9 8-9 8" stroke="#fff" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M4 16l8-9 8 9" stroke="#fff" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ffc21a" stroke="#a86100" stroke-width="2"/><circle cx="12" cy="12" r="6.2" fill="none" stroke="#ffe780" stroke-width="2"/><rect x="10.8" y="7.5" width="2.4" height="9" rx="1" fill="#e09100"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.2l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.1 6 20.6l1.3-6.7-5-4.7 6.8-.8z" fill="#ffd93b" stroke="#b36f00" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21C5 15.6 2.5 12 2.5 8.4A5 5 0 0112 6.2a5 5 0 019.5 2.2C21.5 12 19 15.6 12 21z" fill="#ff4a5a" stroke="#8a0f1f" stroke-width="1.6" stroke-linejoin="round"/><ellipse cx="7.6" cy="8.4" rx="1.6" ry="1.1" fill="#fff" opacity=".7"/></symbol>
+  </defs>
+</svg>
+
+<div id="app">
+  <canvas id="game" aria-label="Glitch Garden game view" role="img"></canvas>
+
+  <!-- A. WELCOME -->
+  <section id="welcome" class="screen" aria-label="Welcome">
+    <div class="backdrop"><div class="blur"></div><div class="dim"></div></div>
+    <div class="art" role="img" aria-label="Glitch Garden cover art: a friendly white and blue robot running through a floating-island garden"></div>
+    <canvas id="sparkles"></canvas>
+    <button class="sqbtn sound-toggle" data-sound-toggle aria-label="Toggle sound" aria-pressed="false"><svg><use href="#i-sound"/></svg></button>
+    <div class="strip">
+      <p class="subtitle">A Tiny Robot. A Giant Adventure.</p>
+      <button class="btn big pulse" id="btnWelcome" type="button">Welcome</button>
+    </div>
+  </section>
+
+  <!-- B. MAIN MENU -->
+  <section id="menu" class="screen" aria-label="Main menu">
+    <div class="backdrop menu-bg"><div class="blur"></div><div class="dim"></div></div>
+    <div class="layout">
+      <div class="robot-card" role="img" aria-label="The Glitch Garden robot"></div>
+      <div class="col">
+        <div class="logo" role="img" aria-label="Glitch Garden"></div>
+        <div class="panel menu-panel">
+          <h2>Menu</h2>
+          <div class="stack">
+            <button class="btn" id="mPlay" type="button">Play</button>
+            <button class="btn blue" id="mLevels" type="button">Levels</button>
+            <button class="btn orange" id="mHow" type="button">How to Play</button>
+            <button class="btn blue" id="mSettings" type="button">Settings</button>
+            <button class="btn" id="mCredits" type="button">Credits</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="sqbtn sound-toggle" data-sound-toggle aria-label="Toggle sound" aria-pressed="false"><svg><use href="#i-sound"/></svg></button>
+  </section>
+
+  <!-- C. LEVEL SELECT -->
+  <section id="levels" class="screen" aria-label="Level selection">
+    <div class="backdrop menu-bg"><div class="blur"></div><div class="dim"></div></div>
+    <div class="screen-center"><div class="panel dialog wide scroll">
+      <h2>Choose a Garden</h2>
+      <div class="level-grid" id="levelGrid"></div>
+      <p class="sub-title" id="lvMsg" role="status" aria-live="polite" style="min-height:1.5em"></p>
+      <div class="row"><button class="btn orange" id="lvBack" type="button">Back</button></div>
+    </div></div>
+  </section>
+
+  <!-- HOW TO PLAY -->
+  <section id="howto" class="screen" aria-label="How to play">
+    <div class="backdrop menu-bg"><div class="blur"></div><div class="dim"></div></div>
+    <div class="screen-center"><div class="panel dialog wide scroll">
+      <h2>How to Play</h2>
+      <div class="howto-grid">
+        <div class="box"><h3>Move</h3><p><span class="tag">←</span><span class="tag">→</span> or <span class="tag">A</span><span class="tag">D</span> on keyboard. On touch screens use the round arrow buttons.</p></div>
+        <div class="box"><h3>Jump</h3><p><span class="tag">Space</span>, <span class="tag">W</span> or <span class="tag">↑</span>. Hold for a higher jump. Touch: the big orange button.</p></div>
+        <div class="box"><h3>Collect</h3><p>Grab coins for points. Find the glowing stars (3 per garden) for big bonuses.</p></div>
+        <div class="box"><h3>Avoid</h3><p>Thorns, brambles and bottomless gaps hurt. Crumbling leaf-planks fall soon after you land on them!</p></div>
+        <div class="box"><h3>Checkpoints</h3><p>Touch a flower flag to save your spot. If you fall, you restart there.</p></div>
+        <div class="box"><h3>Finish</h3><p>Reach the glowing garden gate to complete a level and unlock the next. <span class="tag">Esc</span> or <span class="tag">P</span> pauses.</p></div>
+      </div>
+      <div class="row" style="margin-top:1.2em"><button class="btn orange" id="hwBack" type="button">Back</button></div>
+    </div></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings" class="screen" aria-label="Settings">
+    <div class="backdrop menu-bg"><div class="blur"></div><div class="dim"></div></div>
+    <div class="screen-center"><div class="panel dialog scroll">
+      <h2>Settings</h2>
+      <div class="field"><label for="setMusic">Music</label><span class="val" id="valMusic">70%</span><input id="setMusic" type="range" min="0" max="100" step="1" value="70"></div>
+      <div class="field"><label for="setSfx">Sound effects</label><span class="val" id="valSfx">80%</span><input id="setSfx" type="range" min="0" max="100" step="1" value="80"></div>
+      <div class="field"><label for="setMute">Mute all audio</label><button class="switch" id="setMute" role="switch" aria-checked="false" type="button"></button></div>
+      <div class="field"><label for="setTouch">On-screen controls</label><button class="switch" id="setTouch" role="switch" aria-checked="false" type="button"></button></div>
+      <div class="field"><label for="setMotion">Reduce motion</label><button class="switch" id="setMotion" role="switch" aria-checked="false" type="button"></button></div>
+      <div class="row" style="margin-top:1.2em">
+        <button class="btn red" id="setReset" type="button">Reset Progress</button>
+        <button class="btn orange" id="setBack" type="button">Back</button>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- CREDITS -->
+  <section id="credits" class="screen" aria-label="Credits">
+    <div class="backdrop menu-bg"><div class="blur"></div><div class="dim"></div></div>
+    <div class="screen-center"><div class="panel dialog scroll credits">
+      <h2>Credits</h2>
+      <p class="big">GLITCH GARDEN</p>
+      <p>A tiny robot. A giant adventure.</p>
+      <p><b>Game design &amp; code</b><br>Built with HTML5 Canvas + JavaScript</p>
+      <p><b>Cover art</b><br>Supplied Glitch Garden artwork</p>
+      <p><b>Music &amp; sound</b><br>Generated live with the Web Audio API</p>
+      <p><b>Interface</b><br>Wood-and-vine UI kit drawn in CSS</p>
+      <p>Thanks for playing!</p>
+      <div class="row" style="margin-top:1em"><button class="btn orange" id="crBack" type="button">Back</button></div>
+    </div></div>
+  </section>
+
+  <!-- D/E. HUD -->
+  <section id="hud" class="screen" aria-label="Heads-up display">
+    <div class="hudwrap">
+    <div class="top">
+      <div class="group">
+        <span class="chip name" id="hudName">Level</span>
+        <span class="chip" id="hudCoinChip"><i><svg viewBox="0 0 24 24" width="100%" height="100%"><use href="#i-coin"/></svg></i><span id="hudCoins">0</span></span>
+        <span class="chip" id="hudStarChip"><i><svg viewBox="0 0 24 24" width="100%" height="100%"><use href="#i-star"/></svg></i><span id="hudStars">0/3</span></span>
+        <span class="chip" id="hudLives" aria-label="Lives"></span>
+      </div>
+      <div class="pause-wrap"><button class="sqbtn" id="btnPause" aria-label="Pause" type="button"><svg><use href="#i-pause"/></svg></button></div>
+    </div>
+    <div class="progress" aria-hidden="true"><b id="hudProg"></b></div>
+    </div>
+    <div class="toast" id="hudToast" role="status" aria-live="polite"></div>
+  </section>
+
+  <div id="touch" aria-label="Touch controls">
+    <button class="tbtn" id="tLeft" aria-label="Move left" type="button"><svg><use href="#i-left"/></svg></button>
+    <button class="tbtn" id="tRight" aria-label="Move right" type="button"><svg><use href="#i-right"/></svg></button>
+    <button class="tbtn" id="tJump" aria-label="Jump" type="button"><svg><use href="#i-up"/></svg></button>
+  </div>
+
+  <!-- F. PAUSE -->
+  <section id="pause" class="screen over" aria-label="Paused">
+    <div class="shade"></div>
+    <div class="screen-center"><div class="panel dialog scroll">
+      <h2>Paused</h2>
+      <div class="stack">
+        <button class="btn" id="pResume" type="button">Resume</button>
+        <button class="btn blue" id="pRestart" type="button">Restart Level</button>
+        <button class="btn orange" id="pSettings" type="button">Settings</button>
+        <button class="btn red" id="pMenu" type="button">Main Menu</button>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- G. VICTORY -->
+  <section id="victory" class="screen over" aria-label="Level complete">
+    <div class="shade"></div>
+    <canvas id="confetti"></canvas>
+    <div class="screen-center"><div class="panel dialog scroll">
+      <h2 class="big-title" style="font-size:1.9em">Level Complete!</h2>
+      <p class="sub-title" id="vSub">Great job!</p>
+      <div class="starrow" id="vStars"><span>★</span><span>★</span><span>★</span></div>
+      <div class="stats">
+        <div class="stat"><b id="vCoins">0</b><span>Coins</span></div>
+        <div class="stat"><b id="vStarsN">0/3</b><span>Stars</span></div>
+        <div class="stat"><b id="vScore">0</b><span>Score</span></div>
+      </div>
+      <p class="sub-title" id="vBest" style="margin-top:-.2em"></p>
+      <div class="stack">
+        <button class="btn" id="vNext" type="button">Next Level</button>
+        <button class="btn blue" id="vReplay" type="button">Replay</button>
+        <button class="btn red" id="vMenu" type="button">Main Menu</button>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- GAME OVER -->
+  <section id="gameover" class="screen over" aria-label="Game over">
+    <div class="shade"></div>
+    <div class="screen-center"><div class="panel dialog scroll">
+      <h2 class="big-title" style="font-size:1.9em">Game Over</h2>
+      <p class="sub-title">The garden glitched out. Try again!</p>
+      <div class="stats" style="grid-template-columns:repeat(2,1fr)">
+        <div class="stat"><b id="gCoins">0</b><span>Coins</span></div>
+        <div class="stat"><b id="gScore">0</b><span>Score</span></div>
+      </div>
+      <div class="stack">
+        <button class="btn" id="gRetry" type="button">Retry</button>
+        <button class="btn red" id="gMenu" type="button">Main Menu</button>
+      </div>
+    </div></div>
+  </section>
+
+  <div id="curtain"></div>
+</div>
+
+<script src="js/util.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/game.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+<script src="../hub-return.js" defer></script></body>
+</html>

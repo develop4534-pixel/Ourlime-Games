@@ -1,0 +1,104 @@
+.ourlime-hub-return {
+    all: initial;
+    position: fixed !important;
+    z-index: 2147483647 !important;
+    top: max(12px, env(safe-area-inset-top)) !important;
+    left: max(12px, env(safe-area-inset-left)) !important;
+    display: inline-flex !important;
+    min-height: 38px !important;
+    align-items: center !important;
+    gap: 7px !important;
+    padding: 0 12px !important;
+    border: 1px solid rgba(64, 224, 208, .7) !important;
+    border-radius: 9px !important;
+    background: rgba(12, 15, 24, .9) !important;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, .35) !important;
+    color: #40e0d0 !important;
+    cursor: pointer !important;
+    font: 700 12px/1 Arial, sans-serif !important;
+    letter-spacing: .5px !important;
+    text-decoration: none !important;
+    -webkit-tap-highlight-color: transparent;
+    backdrop-filter: blur(8px);
+}
+
+.ourlime-hub-return:hover,
+.ourlime-hub-return:focus-visible {
+    background: #40e0d0 !important;
+    color: #071317 !important;
+    outline: 2px solid #fff !important;
+    outline-offset: 2px !important;
+}
+
+.ourlime-hub-return__arrow {
+    font-size: 17px;
+}
+
+.ourlime-hub-modal[hidden] {
+    display: none !important;
+}
+
+.ourlime-hub-modal {
+    position: fixed !important;
+    z-index: 2147483647 !important;
+    inset: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    padding: 20px !important;
+    background: rgba(5, 8, 16, .78) !important;
+    font-family: Arial, sans-serif !important;
+    backdrop-filter: blur(5px);
+}
+
+.ourlime-hub-modal__panel {
+    width: min(100%, 380px) !important;
+    padding: 24px !important;
+    border: 1px solid rgba(64, 224, 208, .45) !important;
+    border-radius: 14px !important;
+    background: #131725 !important;
+    box-shadow: 0 20px 70px rgba(0, 0, 0, .6) !important;
+    color: #f5f6fb !important;
+    text-align: left !important;
+}
+
+.ourlime-hub-modal__title {
+    margin: 0 0 10px !important;
+    color: #40e0d0 !important;
+    font: 700 20px/1.2 Arial, sans-serif !important;
+}
+
+.ourlime-hub-modal__message {
+    margin: 0 0 22px !important;
+    color: #c4cada !important;
+    font: 14px/1.5 Arial, sans-serif !important;
+}
+
+.ourlime-hub-modal__actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+}
+
+.ourlime-hub-modal__actions button {
+    min-height: 40px !important;
+    padding: 0 13px !important;
+    border: 1px solid #3a4155 !important;
+    border-radius: 8px !important;
+    background: #1b2030 !important;
+    color: #f5f6fb !important;
+    cursor: pointer !important;
+    font: 700 12px Arial, sans-serif !important;
+}
+
+.ourlime-hub-modal__actions button:hover,
+.ourlime-hub-modal__actions button:focus-visible {
+    border-color: #40e0d0 !important;
+    outline: 2px solid #40e0d0 !important;
+    outline-offset: 2px !important;
+}
+
+.ourlime-hub-modal__actions .ourlime-hub-modal__return {
+    border-color: #40e0d0 !important;
+    background: #40e0d0 !important;
+    color: #071317 !important;
+}

@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="theme-color" content="#0b0a2a">
+<title>Rift Flip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Exo+2:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0b0a2a; --cyan:#27e3ff; --sun:#ff8a2a; --gold:#f4c542; --wood2:#4a2a0d; --text:#f3f1ff;
+  --bw:clamp(180px,min(94vw,100dvh - 390px),480px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:radial-gradient(ellipse at 50% 0%,#3a2f9a 0%,var(--ink) 65%);
+  color:var(--text);font-family:'Exo 2',system-ui,sans-serif;overflow:hidden;
+  -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none
+}
+#app{
+  position:relative;height:100dvh;width:100%;max-width:520px;margin:0 auto;
+  padding:calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 12px) calc(env(safe-area-inset-bottom) + 10px) calc(env(safe-area-inset-left) + 12px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px
+}
+.screen{display:none;width:100%;flex-direction:column;align-items:center;gap:10px}
+.screen.on{display:flex}
+h1{font-family:Bungee,Impact,sans-serif;font-weight:400;margin:0;font-size:clamp(40px,12vw,64px);line-height:.95;text-align:center;
+  background:linear-gradient(#bff6ff 0%,var(--cyan) 35%,#fff 50%,var(--sun) 70%,#ff5a1f 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 #1a0c4a)}
+.tag{font-family:Bungee,sans-serif;font-size:clamp(13px,3.6vw,17px);color:var(--sun);margin:0;letter-spacing:1px}
+.ribbon{font-family:Bungee,sans-serif;font-size:clamp(14px,4vw,18px);color:#fff3d6;
+  background:linear-gradient(#e2412f,#9b1b1b);border:3px solid var(--gold);border-radius:6px;
+  padding:6px 20px;box-shadow:0 4px 0 #4a0a0a;text-shadow:0 2px 0 #4a0a0a;letter-spacing:1px;
+  white-space:nowrap;position:relative;z-index:1}
+.panel{width:100%;background:linear-gradient(#8f5a2a,#5b3514);border:4px solid var(--wood2);border-radius:14px;
+  box-shadow:inset 0 0 0 2px #c4864a,0 10px 24px #0009;padding:16px 14px 12px}
+.btn{display:block;width:100%;margin:8px 0;padding:12px 10px;font-family:'Exo 2',sans-serif;font-weight:900;
+  font-size:clamp(15px,4vw,18px);color:#fff4da;text-transform:uppercase;letter-spacing:1px;
+  background:linear-gradient(#b0733a,#6d3c17);border:3px solid #33190a;border-radius:10px;
+  box-shadow:inset 0 2px 0 #e0a46c,inset 0 -4px 0 #3d2109,0 5px 0 #241204;
+  cursor:pointer;text-shadow:0 2px 0 #3a1d07;touch-action:manipulation}
+.btn:active{transform:translateY(3px);box-shadow:inset 0 2px 0 #e0a46c,0 2px 0 #241204}
+.btn:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+.btn.sm{display:inline-block;width:auto;margin:0;padding:8px 16px;font-size:14px}
+.help{font-size:15px;line-height:1.5;margin:0 0 6px;color:#f5e6cf}
+.rank{font-size:14px;color:#ffe9b8;text-align:center;margin:0 0 4px}
+
+#hud{width:var(--bw);display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}
+.pl{background:linear-gradient(#8f5a2a,#5b3514);border:3px solid var(--wood2);border-radius:10px;padding:5px 6px;text-align:center;box-shadow:inset 0 0 0 2px #c4864a}
+.pl b{display:block;font-family:Bungee,sans-serif;font-weight:400;font-size:13px}
+.sp{font-size:18px;letter-spacing:3px;color:var(--gold);text-shadow:0 0 6px var(--sun)}
+.clock{font-family:Bungee,sans-serif;font-size:20px;background:#06041a;border:3px solid var(--cyan);border-radius:10px;padding:4px 10px;color:var(--cyan);text-shadow:0 0 8px var(--cyan)}
+#turn{font-weight:900;font-size:clamp(14px,4vw,17px);text-transform:uppercase;letter-spacing:1px;text-align:center;min-height:1.2em}
+#board{width:var(--bw);aspect-ratio:1;display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:8px;
+  background:#06041a;border:4px solid var(--wood2);border-radius:14px;touch-action:none}
+.t{border-radius:6px;display:flex;align-items:center;justify-content:center;position:relative;
+  background:linear-gradient(160deg,#4a47b0,#26236a);box-shadow:inset 0 2px 0 #7b78e0,inset 0 -3px 0 #161440}
+.t.v{background:radial-gradient(circle,#1a0f4a,#03020b 75%);box-shadow:inset 0 0 12px #000}
+.t.x{box-shadow:inset 0 0 0 3px var(--cyan),0 0 14px var(--cyan)}
+.t.hi{box-shadow:inset 0 0 0 3px var(--sun)}
+.tok{width:70%;height:70%;border-radius:50%;display:block;
+  background:radial-gradient(circle at 35% 30%,#fff,var(--c) 40%,var(--d) 100%);box-shadow:0 0 12px var(--c),0 4px 0 #0007}
+.spk{width:28%;height:28%;border-radius:50%;display:block;background:#fff6b8;
+  box-shadow:0 0 8px var(--gold),0 0 16px var(--sun);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(.7);opacity:.6}}
+@media (prefers-reduced-motion:reduce){.spk{animation:none}}
+.pvlabel{font-size:12px;color:var(--cyan);text-transform:uppercase;letter-spacing:1px;text-align:center}
+#prev{width:var(--bw);aspect-ratio:7/3;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(3,1fr);gap:3px;
+  padding:5px;border:2px dashed var(--cyan);border-radius:10px;background:#06041a;opacity:.9}
+#prev .t{border-radius:3px}
+.log{min-height:1.4em;font-size:14px;text-align:center;color:#d8d3ff;width:var(--bw)}
+#pad{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(2,50px);gap:6px}
+#pad .btn{margin:0;padding:0;font-size:20px;display:flex;align-items:center;justify-content:center;height:100%}
+#up{grid-column:2;grid-row:1}#lf{grid-column:1;grid-row:2}#dn{grid-column:2;grid-row:2}#rt{grid-column:3;grid-row:2}
+.row{display:flex;gap:8px;justify-content:center}
+
+.modal{position:fixed;inset:0;background:#05031acc;display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
+.modal.on{display:flex}
+.modal .panel{max-width:380px;text-align:center}
+.modal .ribbon{display:inline-block;margin:-28px 0 10px}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <section id="menu" class="screen on">
+    <h1>RIFT<br>FLIP</h1>
+    <p class="tag">FLIP. JUMP. SURVIVE.</p>
+    <div class="ribbon">Main Menu</div>
+    <div class="panel">
+      <p class="rank" id="rank"></p>
+      <button class="btn" id="playBtn">Play 1v1 on this screen</button>
+      <button class="btn" id="skinBtn">Token skin</button>
+      <button class="btn" id="howBtn">How to play</button>
+    </div>
+  </section>
+
+  <section id="game" class="screen">
+    <div id="hud">
+      <div class="pl"><b style="color:var(--cyan)">BLUE</b><div class="sp" id="sp0"></div></div>
+      <div class="clock" id="clock">1:30</div>
+      <div class="pl"><b style="color:#ff6b6b">RED</b><div class="sp" id="sp1"></div></div>
+    </div>
+    <div id="turn"></div>
+    <div id="board" aria-label="Game board"></div>
+    <div class="pvlabel" id="flipInfo"></div>
+    <div id="prev" aria-label="Partial preview of next layout"></div>
+    <div class="log" id="log" aria-live="polite"></div>
+    <div id="pad">
+      <button class="btn" id="up" data-d="-1,0" aria-label="Up">▲</button>
+      <button class="btn" id="lf" data-d="0,-1" aria-label="Left">◀</button>
+      <button class="btn" id="dn" data-d="1,0" aria-label="Down">▼</button>
+      <button class="btn" id="rt" data-d="0,1" aria-label="Right">▶</button>
+    </div>
+    <div class="row">
+      <button class="btn sm" id="pauseBtn">Pause</button>
+      <button class="btn sm" id="quitBtn">Menu</button>
+    </div>
+  </section>
+
+</div>
+
+<div class="modal" id="result">
+  <div class="panel">
+    <div class="ribbon" id="resTitle"></div>
+    <p class="help" id="resBody"></p>
+    <p class="rank" id="resBadge"></p>
+    <button class="btn" id="rematchBtn">Rematch</button>
+    <button class="btn" id="toMenuBtn">Main menu</button>
+  </div>
+</div>
+
+<div class="modal" id="how">
+  <div class="panel">
+    <div class="ribbon">How to play</div>
+    <p class="help">Move one step per turn. Collect three sparks, then step onto the cyan exit to escape. Sparks are shared and a new one appears after each pickup, so either player can reach three.</p>
+    <p class="help">The board flips every three rounds between two layouts. A token standing on a void when the board flips falls back to its start and loses its next turn.</p>
+    <p class="help">The top strip previews only the first three rows of the next layout.</p>
+    <p class="help">A match lasts 90 seconds. If time runs out, the player with more sparks wins; a tie goes to the player with the shortest legal path to the exit. If both are tied, the match is a draw. Clean Flip badge: finish without falling.</p>
+    <button class="btn" id="howClose">Got it</button>
+  </div>
+</div>
+
+<script>
+const LAY=[
+  ["#######","#.#.#.#","#######","#.#.#.#","#######","#.#.#.#","#######"],
+  ["#######","##.#.##","#.###.#","#.....#","#.###.#","##.#.##","#######"]
+];
+const START=[[0,0],[0,6]], EXIT=[6,6], FLIP=3, MATCH=90, NEED=3, NAME=["Blue","Red"];
+const SKINS=[
+  {n:"Cyan Rift",c:"#27e3ff",d:"#0a4fa8"},
+  {n:"Sunset",c:"#ffb347",d:"#c4420e"},
+  {n:"Violet Drift",c:"#d88bff",d:"#4b1a9a"}
+];
+const RED={c:"#ff4d4d",d:"#8a0d1a"};
+const RANKS=[[0,"Rookie"],[2,"Drifter"],[4,"Flipper"],[7,"Riftmaster"]];
+const DIRS={ArrowUp:[-1,0],w:[-1,0],W:[-1,0],ArrowDown:[1,0],s:[1,0],S:[1,0],ArrowLeft:[0,-1],a:[0,-1],A:[0,-1],ArrowRight:[0,1],d:[0,1],D:[0,1]};
+
+let wins=0, skin=0, G=null, swiped=false, sx=0, sy=0;
+const $=id=>document.getElementById(id);
+const solid=(l,r,c)=>LAY[l][r][c]==="#";
+const isSpecial=(r,c)=>(r===EXIT[0]&&c===EXIT[1])||START.some(s=>s[0]===r&&s[1]===c);
+const rankName=()=>RANKS.filter(x=>wins>=x[0]).pop()[1];
+const say=m=>{$("log").textContent=m};
+const dots=n=>[0,1,2].map(i=>i<n?"●":"○").join(" ");
+
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id))}
+function refreshMenu(){
+  $("rank").textContent=`Blue mastery: ${rankName()} ribbon · ${wins} win${wins===1?"":"s"}`;
+  $("skinBtn").textContent=`Token skin: ${SKINS[skin].n}`;
+}
+
+function startMatch(){
+  clearInterval(G&&G.timer);
+  G={layout:0,pos:[[...START[0]],[...START[1]]],sparks:[0,0],falls:[0,0],moves:[0,0],skip:[0,0],
+     sparkSet:new Set(),cur:0,round:0,time:MATCH,paused:false,over:false,timer:null};
+  for(let i=0;i<NEED;i++)spawnSpark();
+  G.timer=setInterval(tick,1000);
+  $("pauseBtn").textContent="Pause";
+  show("game");
+  say("Blue starts. Collect 3 sparks, then reach the cyan exit.");
+  render();
+}
+
+function tick(){
+  if(!G||G.over||G.paused)return;
+  G.time--;
+  if(G.time<=0){G.time=0;finish("time")}
+  renderHud();
+}
+
+function act(dr,dc){
+  if(!G||G.over||G.paused)return;
+  const p=G.cur,[r,c]=G.pos[p],nr=r+dr,nc=c+dc;
+  if(nr<0||nc<0||nr>6||nc>6)return say("Edge of the arena. Try another direction.");
+  if(!solid(G.layout,nr,nc))return say("That tile is a void. Choose a solid tile.");
+  const o=G.pos[1-p];
+  if(o[0]===nr&&o[1]===nc)return say("Your rival is standing there.");
+  G.pos[p]=[nr,nc];G.moves[p]++;
+  const k=nr+","+nc;
+  if(G.sparkSet.has(k)){
+    G.sparkSet.delete(k);
+    G.sparks[p]++;
+    spawnSpark(k);
+    say(`${NAME[p]} collected a spark. A new one appeared.`);
+  }else say(`${NAME[p]} moved.`);
+  if(nr===EXIT[0]&&nc===EXIT[1]&&G.sparks[p]>=NEED){finish("escape",p);return}
+  endTurn();
+}
+
+function spawnSpark(exclude=""){
+  const occupied=new Set(G.pos.map(([r,c])=>r+","+c));
+  const candidates=[];
+  for(let r=0;r<7;r++)for(let c=0;c<7;c++){
+    const k=r+","+c;
+    if(solid(0,r,c)&&solid(1,r,c)&&!isSpecial(r,c)&&k!==exclude&&
+       !occupied.has(k)&&!G.sparkSet.has(k))candidates.push(k);
+  }
+  if(!candidates.length)throw new Error("No valid tile is available for a spark.");
+  G.sparkSet.add(candidates[Math.floor(Math.random()*candidates.length)]);
+}
+
+function advance(){
+  G.cur=1-G.cur;
+  if(G.cur===0){G.round++;if(G.round%FLIP===0)flip()}
+}
+function endTurn(){
+  advance();
+  while(!G.over&&G.skip[G.cur]>0){G.skip[G.cur]--;say(`${NAME[G.cur]} recovers and passes.`);advance()}
+  render();
+}
+
+function flip(){
+  G.layout=1-G.layout;
+  for(let p=0;p<2;p++){
+    const [r,c]=G.pos[p];
+    if(!solid(G.layout,r,c)){
+      G.pos[p]=spawn(p);G.falls[p]++;G.skip[p]=1;
+      say(`The board flipped! ${NAME[p]} fell and returns to start.`);
+    }
+  }
+}
+function spawn(p){
+  const o=G.pos[1-p];
+  for(const [r,c] of [START[p],[0,0],[0,6],[6,0]]){
+    if(solid(G.layout,r,c)&&!(o[0]===r&&o[1]===c))return [r,c];
+  }
+  return [...START[p]];
+}
+
+function finish(how,p){
+  G.over=true;clearInterval(G.timer);
+  let w=p;
+  if(how==="time"){
+    if(G.sparks[0]!==G.sparks[1])w=G.sparks[0]>G.sparks[1]?0:1;
+    else{
+      const d=shortestExitDistance;
+      w=d(0)===d(1)?-1:(d(0)<d(1)?0:1);
+    }
+  }
+  if(w===0)wins++;
+  const timedOutOnDistance=how==="time"&&G.sparks[0]===G.sparks[1];
+  $("resTitle").textContent=w<0?"Dead heat":how==="escape"?`${NAME[w]} escapes the rift`:
+    `${NAME[w]} wins on ${timedOutOnDistance?"distance":"sparks"}`;
+  $("resBody").textContent=`Sparks ${G.sparks[0]} : ${G.sparks[1]} · Falls ${G.falls[0]} : ${G.falls[1]} · Ended by ${how==="time"?"the 90-second clock":"escape"}`;
+  $("resBadge").textContent=(w>=0&&G.falls[w]===0)?"Badge earned: Clean Flip":"";
+  $("result").classList.add("on");
+  render();
+}
+
+function shortestExitDistance(p){
+  const start=G.pos[p],other=G.pos[1-p],queue=[[start[0],start[1],0]],seen=new Set([start.join(",")]);
+  for(let i=0;i<queue.length;i++){
+    const [r,c,d]=queue[i];
+    if(r===EXIT[0]&&c===EXIT[1])return d;
+    for(const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]){
+      const nr=r+dr,nc=c+dc,k=nr+","+nc;
+      if(nr<0||nc<0||nr>6||nc>6||!solid(G.layout,nr,nc)||seen.has(k)||
+         (other[0]===nr&&other[1]===nc))continue;
+      seen.add(k);
+      queue.push([nr,nc,d+1]);
+    }
+  }
+  return Infinity;
+}
+
+function render(){
+  let h="";
+  const [pr,pc]=G.pos[G.cur],[or,oc]=G.pos[1-G.cur];
+  for(let r=0;r<7;r++)for(let c=0;c<7;c++){
+    const sol=solid(G.layout,r,c);
+    const cls=["t"];
+    if(!sol)cls.push("v");
+    if(r===EXIT[0]&&c===EXIT[1])cls.push("x");
+    const adj=Math.abs(pr-r)+Math.abs(pc-c)===1;
+    if(!G.over&&sol&&adj&&!(or===r&&oc===c))cls.push("hi");
+    let inner="";
+    if(G.sparkSet.has(r+","+c))inner='<i class="spk"></i>';
+    for(let p=0;p<2;p++){
+      if(G.pos[p][0]===r&&G.pos[p][1]===c){
+        const s=p===0?SKINS[skin]:RED;
+        inner=`<i class="tok" style="--c:${s.c};--d:${s.d}"></i>`;
+      }
+    }
+    h+=`<div class="${cls.join(" ")}" data-r="${r}" data-c="${c}">${inner}</div>`;
+  }
+  $("board").innerHTML=h;
+
+  let pv="";
+  const nl=1-G.layout;
+  for(let r=0;r<3;r++)for(let c=0;c<7;c++)
+    pv+=`<div class="t${solid(nl,r,c)?"":" v"}"></div>`;
+  $("prev").innerHTML=pv;
+
+  $("flipInfo").textContent=`Preview: next layout, top three rows · flip in ${FLIP-(G.round%FLIP)} round${FLIP-(G.round%FLIP)===1?"":"s"}`;
+  const t=$("turn");
+  t.textContent=G.over?"Match over":`${NAME[G.cur]} to move`;
+  t.style.color=G.cur===0?"var(--cyan)":"#ff6b6b";
+  renderHud();
+}
+function renderHud(){
+  if(!G)return;
+  $("sp0").textContent=dots(G.sparks[0]);
+  $("sp1").textContent=dots(G.sparks[1]);
+  const m=Math.floor(G.time/60),s=String(G.time%60).padStart(2,"0");
+  $("clock").textContent=`${m}:${s}`;
+}
+
+// Input
+window.addEventListener("keydown",e=>{
+  if(!G||G.over||!$("game").classList.contains("on")||!DIRS[e.key])return;
+  e.preventDefault();act(...DIRS[e.key]);
+});
+document.querySelectorAll("[data-d]").forEach(b=>{
+  b.addEventListener("click",()=>{const [dr,dc]=b.dataset.d.split(",").map(Number);act(dr,dc)});
+});
+$("board").addEventListener("pointerdown",e=>{swiped=false;sx=e.clientX;sy=e.clientY});
+$("board").addEventListener("pointerup",e=>{
+  const dx=e.clientX-sx,dy=e.clientY-sy;
+  if(Math.max(Math.abs(dx),Math.abs(dy))>28){
+    swiped=true;
+    if(Math.abs(dx)>Math.abs(dy))act(0,dx>0?1:-1);
+    else act(dy>0?1:-1,0);
+  }
+});
+$("board").addEventListener("click",e=>{
+  if(swiped){swiped=false;return}
+  const t=e.target.closest(".t");
+  if(!t||!G||G.over||G.paused)return;
+  const r=+t.dataset.r,c=+t.dataset.c,[pr,pc]=G.pos[G.cur];
+  const dr=r-pr,dc=c-pc;
+  if(Math.abs(dr)+Math.abs(dc)===1)act(dr,dc);
+  else if(dr||dc)say("Tap an adjacent tile, or swipe.");
+});
+
+// Menu and controls
+$("playBtn").onclick=startMatch;
+$("skinBtn").onclick=()=>{skin=(skin+1)%SKINS.length;refreshMenu()};
+$("howBtn").onclick=()=>$("how").classList.add("on");
+$("howClose").onclick=()=>$("how").classList.remove("on");
+$("pauseBtn").onclick=()=>{
+  if(!G||G.over)return;
+  G.paused=!G.paused;
+  $("pauseBtn").textContent=G.paused?"Resume":"Pause";
+  say(G.paused?"Paused. The clock is stopped.":"Back in the rift.");
+};
+$("quitBtn").onclick=()=>{
+  if(G){G.over=true;clearInterval(G.timer)}
+  $("result").classList.remove("on");
+  show("menu");refreshMenu();
+};
+$("rematchBtn").onclick=()=>{$("result").classList.remove("on");startMatch()};
+$("toMenuBtn").onclick=()=>{$("result").classList.remove("on");show("menu");refreshMenu()};
+
+refreshMenu();
+</script>
+</body>
+</html>

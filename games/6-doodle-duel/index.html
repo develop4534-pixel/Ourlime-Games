@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1e5b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:; media-src 'self' blob:; base-uri 'none'; form-action 'none'">
+<title>DOODLE DUEL</title>
+<link rel="icon" href="assets/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="scene-logo">
+
+<div id="bg" aria-hidden="true"><i class="bg-a"></i><i class="bg-b"></i><i class="bg-bolt"></i><i class="bg-dots"></i><div id="floaters"></div><div id="grass"></div></div>
+
+<div id="app">
+
+  <!-- 1 · LOGO / SPLASH ───────────────────────────── -->
+  <section class="screen" id="s-logo" aria-label="Welcome">
+    <div class="logo-wrap">
+      <img id="logoImg" class="logo-img" src="assets/logo.jpg" alt="Corporate logo" width="512" height="512" decoding="async">
+      <div class="loadbar" id="loadbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="loadfill"></i><span id="loadtxt">0%</span></div>
+      <button class="wbtn big" id="btnWelcome" data-act="welcome" disabled><span class="lbl" data-t="welcome">Welcome</span></button>
+    </div>
+  </section>
+
+  <!-- 2 · TUTORIAL ───────────────────────────────── -->
+  <section class="screen" id="s-tutorial" aria-label="How to play" hidden>
+    <div class="sign tall">
+      <div class="sign-title"><span data-t="howto">How to play</span></div>
+      <div class="sign-body tut">
+        <div class="tut-art" id="tutArt"></div>
+        <h2 id="tutHead"></h2>
+        <p id="tutText"></p>
+        <div class="dots" id="tutDots"></div>
+      </div>
+    </div>
+    <div class="row-btns">
+      <button class="sq" data-act="tutPrev" id="tutPrev" aria-label="Previous" data-ico="back"></button>
+      <button class="wbtn" data-act="tutSkip" id="tutSkip"><span class="lbl" data-t="skip">Skip</span></button>
+      <button class="sq go" data-act="tutNext" id="tutNext" aria-label="Next" data-ico="play"></button>
+    </div>
+  </section>
+
+  <!-- 3 · MAIN MENU ──────────────────────────────── -->
+  <section class="screen" id="s-menu" aria-label="Main menu" hidden>
+    <div class="menu-grid">
+      <div class="menu-char left" id="menuBlue"></div>
+      <div class="menu-center">
+        <h1 class="title" aria-label="Doodle Duel">
+          <svg viewBox="0 0 400 214" role="img" aria-hidden="true">
+            <defs><linearGradient id="tgY" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff176"/><stop offset=".55" stop-color="#ffc400"/><stop offset="1" stop-color="#ff8a00"/></linearGradient></defs>
+            <g class="crown-t" transform="translate(170 0)"><path d="M0 52 L6 14 L24 34 L38 6 L52 34 L70 14 L76 52Z" fill="#ffd23f" stroke="#1b1b2f" stroke-width="5" stroke-linejoin="round"/><rect x="0" y="50" width="76" height="11" rx="4" fill="#ffb300" stroke="#1b1b2f" stroke-width="4"/></g>
+            <text x="200" y="132" text-anchor="middle" class="t1">DOODLE</text>
+            <text x="200" y="204" text-anchor="middle" class="t2">DUEL</text>
+          </svg>
+        </h1>
+        <nav class="sign menu-sign" aria-label="Menu">
+          <button class="wbtn big" data-act="practice"><span data-ico="play"></span><span class="lbl" data-t="play">Play</span></button>
+          <button class="wbtn big" data-act="rooms"><span data-ico="users"></span><span class="lbl" data-t="rooms">Rooms</span></button>
+          <button class="wbtn big" data-act="settings"><span data-ico="gear"></span><span class="lbl" data-t="settings">Settings</span></button>
+        </nav>
+        <div class="row-btns tight">
+          <button class="sq" data-act="howto" aria-label="How to play" data-ico="question"></button>
+          <button class="sq" data-act="avatar" aria-label="Character" data-ico="user"></button>
+          <button class="sq" data-act="stats" aria-label="Best scores" data-ico="trophy"></button>
+          <button class="sq" data-act="privacy" aria-label="Privacy and safety" data-ico="shield"></button>
+          <button class="sq" data-act="exit" aria-label="Exit" data-ico="close"></button>
+        </div>
+      </div>
+      <div class="menu-char right" id="menuRed"></div>
+    </div>
+  </section>
+
+  <!-- 4 · GAME (practice + multiplayer) ──────────── -->
+  <section class="screen game" id="s-game" aria-label="Game" hidden>
+    <header class="hud">
+      <button class="sq sm" data-act="pause" aria-label="Pause" data-ico="pause"></button>
+      <div class="pips" id="pips" aria-label="Round"></div>
+      <div class="score plank sm"><span class="coin"></span><b id="hudScore">0</b></div>
+    </header>
+    <div class="timer" id="timer" role="timer" aria-live="off"><div class="timer-track"><i id="timerFill"></i></div><span id="timerNum">30</span></div>
+    <div class="players" id="players" hidden></div>
+    <div class="canvas-area" id="canvasArea">
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="pad" aria-label="Drawing canvas"></canvas>
+        <div class="stage-cover" id="stageCover" hidden></div>
+      </div>
+    </div>
+    <div class="controls" id="controls">
+      <div class="prompt-card plank" id="promptCard" hidden></div>
+      <div class="tools" id="tools" hidden>
+        <div class="palette" id="palette" role="radiogroup" aria-label="Colours"></div>
+        <div class="tool-row">
+          <div class="tool-left"><div class="widths" id="widths" role="radiogroup" aria-label="Brush size"></div><div class="strokes" id="strokeCount" aria-live="polite"></div></div>
+          <div class="tool-right">
+            <button class="sq sm" data-act="undo" id="btnUndo" aria-label="Undo" data-ico="undo"></button>
+            <button class="sq sm" data-act="clear" id="btnClear" aria-label="Clear" data-ico="trash"></button>
+            <button class="sq go" data-act="done" id="btnDone" aria-label="Done" data-ico="check"></button>
+          </div>
+        </div>
+      </div>
+      <div class="choices" id="choices" hidden></div>
+      <div class="reacts" id="reacts" hidden></div>
+      <div class="wait-note plank sm" id="waitNote" hidden></div>
+    </div>
+  </section>
+
+  <!-- 5 · FINAL RESULTS / LEADERBOARD ────────────── -->
+  <section class="screen" id="s-final" aria-label="Results" hidden>
+    <div class="sign tall">
+      <div class="sign-title"><span id="finTitle" data-t="winner">Winner!</span></div>
+      <div class="sign-body fin">
+        <div class="fin-chars" id="finChars"></div>
+        <div class="fin-stars" id="finStars"></div>
+        <div class="fin-score"><span class="coin"></span><b id="finScore">0</b></div>
+        <div class="fin-sub" id="finSub"></div>
+        <ol class="board" id="board"></ol>
+      </div>
+    </div>
+    <div class="row-btns">
+      <button class="sq" data-act="finMenu" aria-label="Menu" data-ico="home"></button>
+      <button class="wbtn" data-act="finAgain" id="finAgain"><span data-ico="retry"></span><span class="lbl" data-t="again">Play again</span></button>
+    </div>
+  </section>
+
+  <!-- 6 · ROOMS: create / join ───────────────────── -->
+  <section class="screen" id="s-rooms" aria-label="Private rooms" hidden>
+    <div class="sign">
+      <div class="sign-title"><span data-t="rooms">Rooms</span></div>
+      <div class="sign-body stack">
+        <button class="profile-chip" data-act="avatar" id="profChip" aria-label="Edit profile"></button>
+        <button class="wbtn big" data-act="gotoCreate"><span data-ico="plus"></span><span class="lbl" data-t="create">Create room</span></button>
+        <button class="wbtn big" data-act="gotoJoin"><span data-ico="share"></span><span class="lbl" data-t="join">Join room</span></button>
+        <p class="note" data-t="private_note">Private rooms only. Share the code with friends to play together.</p>
+      </div>
+    </div>
+    <div class="row-btns"><button class="sq" data-act="back" aria-label="Back" data-ico="back"></button></div>
+  </section>
+
+  <section class="screen" id="s-create" aria-label="Create room" hidden>
+    <div class="sign">
+      <div class="sign-title"><span data-t="create">Create room</span></div>
+      <div class="sign-body stack">
+        <div class="opt"><span class="opt-l"><span data-ico="list"></span><span data-t="rounds">Rounds</span></span><div class="seg" id="segRounds" role="radiogroup"></div></div>
+        <div class="opt"><span class="opt-l"><span data-ico="clock"></span><span data-t="timer">Timer</span></span><div class="seg" id="segTimer" role="radiogroup"></div></div>
+        <p class="note" data-t="session_note">A full game takes about 2–4 minutes.</p>
+        <button class="wbtn big" data-act="doCreate" id="btnCreate"><span data-ico="check"></span><span class="lbl" data-t="create">Create room</span></button>
+      </div>
+    </div>
+    <div class="row-btns"><button class="sq" data-act="back" aria-label="Back" data-ico="back"></button></div>
+  </section>
+
+  <section class="screen" id="s-join" aria-label="Join room" hidden>
+    <div class="sign">
+      <div class="sign-title"><span data-t="join">Join room</span></div>
+      <div class="sign-body stack">
+        <label class="code-label" for="codeInput" data-t="code">Room code</label>
+        <input id="codeInput" class="code-input" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="5" placeholder="•••••" aria-label="Room code">
+        <p class="note err" id="joinErr" hidden></p>
+        <button class="wbtn big" data-act="doJoin" id="btnJoin"><span data-ico="check"></span><span class="lbl" data-t="join">Join room</span></button>
+      </div>
+    </div>
+    <div class="row-btns"><button class="sq" data-act="back" aria-label="Back" data-ico="back"></button></div>
+  </section>
+
+  <!-- 7 · LOBBY ──────────────────────────────────── -->
+  <section class="screen" id="s-lobby" aria-label="Lobby" hidden>
+    <div class="sign tall">
+      <div class="sign-title"><span data-t="lobby">Lobby</span></div>
+      <div class="sign-body lobby">
+        <div class="code-box"><span class="code-lbl" data-t="code">Room code</span><b id="lobbyCode" class="code-big" aria-live="polite">-----</b>
+          <div class="code-actions"><button class="sq sm" data-act="copyCode" aria-label="Copy code" data-ico="copy"></button><button class="sq sm" data-act="shareCode" aria-label="Share invite" data-ico="share"></button></div></div>
+        <div class="lobby-meta" id="lobbyMeta"></div>
+        <ul class="slots" id="slots"></ul>
+      </div>
+    </div>
+    <div class="row-btns">
+      <button class="sq" data-act="leaveRoom" aria-label="Leave" data-ico="back"></button>
+      <button class="sq" data-act="reportOpen" aria-label="Report or block" data-ico="flag"></button>
+      <button class="wbtn" data-act="toggleReady" id="btnReady"><span data-ico="check"></span><span class="lbl" data-t="ready">Ready</span></button>
+      <button class="wbtn go" data-act="startGame" id="btnStart" hidden><span data-ico="play"></span><span class="lbl" data-t="start">Start</span></button>
+    </div>
+  </section>
+
+  <!-- 8 · CHARACTER / AVATAR ─────────────────────── -->
+  <section class="screen" id="s-avatar" aria-label="Character" hidden>
+    <div class="sign tall">
+      <div class="sign-title"><span data-t="character">Character</span></div>
+      <div class="sign-body avatar">
+        <div class="av-pick" id="avPick"></div>
+        <div class="nick" id="nickBox">
+          <div class="nick-row"><button class="sq sm" data-act="nickA-" aria-label="Previous" data-ico="back"></button><b id="nickA"></b><button class="sq sm" data-act="nickA+" aria-label="Next" data-ico="play"></button></div>
+          <div class="nick-row"><button class="sq sm" data-act="nickB-" aria-label="Previous" data-ico="back"></button><b id="nickB"></b><button class="sq sm" data-act="nickB+" aria-label="Next" data-ico="play"></button></div>
+        </div>
+        <p class="note" data-t="nick_note">Nicknames are picked from a safe list. No personal info needed.</p>
+      </div>
+    </div>
+    <div class="row-btns"><button class="wbtn big" data-act="back"><span data-ico="check"></span><span class="lbl" data-t="ok">OK</span></button></div>
+  </section>
+
+  <!-- 13 · SETTINGS hub ──────────────────────────── -->
+  <section class="screen" id="s-settings" aria-label="Settings" hidden>
+    <div class="sign">
+      <div class="sign-title"><span data-t="settings">Settings</span></div>
+      <div class="sign-body stack">
+        <button class="wbtn" data-act="goAudio"><span data-ico="sound"></span><span class="lbl" data-t="audio">Audio</span></button>
+        <button class="wbtn" data-act="goAccess"><span data-ico="eye"></span><span class="lbl" data-t="access">Accessibility</span></button>
+        <button class="wbtn" data-act="goOptions"><span data-ico="gear"></span><span class="lbl" data-t="gameopts">Game</span></button>
+        <button class="wbtn" data-act="howto"><span data-ico="question"></span><span class="lbl" data-t="howto">How to play</span></button>
+        <button class="wbtn" data-act="privacy"><span data-ico="shield"></span><span class="lbl" data-t="privacy">Privacy &amp; safety</span></button>
+        <button class="wbtn" data-act="credits"><span data-ico="info"></span><span class="lbl" data-t="credits">Credits</span></button>
+      </div>
+    </div>
+    <div class="row-btns"><button class="sq" data-act="back" aria-label="Back" data-ico="back"></button></div>
+  </section>
+
+  <!-- 14 · AUDIO ─────────────────────────────────── -->
+  <section class="screen" id="s-audio" aria-label="Audio" hidden>
+    <div class="sign">
+      <div class="sign-title"><span data-t="audio">Audio</span></div>
+      <div class="sign-body stack">
+        <div class="slider-row"><span data-ico="music"></span><button class="sq sm" data-act="vol-music-" aria-label="Music down" data-ico="minus"></button><input class="wslider" id="volMusic" type="range" min="0" max="100" step="5" aria-label="Music volume"><button class="sq sm" data-act="vol-music+" aria-label="Music up" data-ico="plus"></button></div>
+        <div class="slider-row"><span data-ico="sound"></span><button class="sq sm" data-act="vol-sfx-" aria-label="Effects down" data-ico="minus"></button><input class="wslider" id="volSfx" type="range" min="0" max="100" step="5" aria-label="Effects volume"><button class="sq sm" data-act="vol-sfx+" aria-label="Effects up" data-ico="plus"></button></div>
+        <button class="wbtn" data-act="toggleMute" id="btnMute"><span id="muteIco" data-ico="mute"></span><span class="lbl" id="muteLbl" data-t="mute">Mute all</span></button>
+        <p class="note" data-t="audio_note">The game is fully playable with sound off.</p>
+      </div>
+    </div>
+    <div class="row-btns"><button class="sq" data-act="back" aria-label="Back" data-ico="back"></button></div>
+  </section>
+
+  <!-- 15 · ACCESSIBILITY ─────────────────────────── -->
+  <section class="screen" id="s-access" aria-label="Accessibility" hidden>
+    <div class="sign">
+      <div class="sign-title"><span data-t="access">Accessibility</span></div>
+      <div class="sign-body stack">
+        <button class="toggle" role="switch" aria-checked="false" data-act="tgl-reducedMotion" id="tglRM"><span data-t="reduced">Reduced motion</span><i></i></button>
+        <button class="toggle" role="switch" aria-checked="false" data-act="tgl-highContrast" id="tglHC"><span data-t="contrast">High contrast</span><i></i></button>
+        <button class="toggle" role="switch" aria-checked="false" data-act="tgl-bigText" id="tglBT"><span data-t="bigtext">Large text</span><i></i></button>
+        <div class="opt"><span class="opt-l"><span data-t="language">Language</span></span><div class="seg" id="segLang" role="radiogroup"></div></div>
+      </div>
+    </div>
+    <div class="row-btns"><button class="sq" data-act="back" aria-label="Back" data-ico="back"></button></div>
+  </section>
+
+  <!-- game options ───────────────────────────────── -->
+  <section class="screen" id="s-options" aria-label="Game options" hidden>
+    <div class="sign">
+      <div class="sign-title"><span data-t="gameopts">Game</span></div>
+      <div class="sign-body stack">
+        <div class="opt"><span class="opt-l"><span data-ico="list"></span><span data-t="rounds">Rounds</span></span><div class="seg" id="optRounds" role="radiogroup"></div></div>
+        <div class="opt"><span class="opt-l"><span data-ico="clock"></span><span data-t="timer">Timer</span></span><div class="seg" id="optTimer" role="radiogroup"></div></div>
+        <label class="code-label" for="serverInput" data-t="server">Online server</label>
+        <input id="serverInput" class="srv-input" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="wss://your-server" aria-label="Online server address">
+        <p class="note err" id="serverErr" hidden></p>
+        <button class="wbtn" data-act="saveServer"><span data-ico="check"></span><span class="lbl" data-t="save">Save</span></button>
+        <button class="wbtn danger" data-act="resetData"><span data-ico="trash"></span><span class="lbl" data-t="reset">Reset data</span></button>
+      </div>
+    </div>
+    <div class="row-btns"><button class="sq" data-act="back" aria-label="Back" data-ico="back"></button></div>
+  </section>
+
+  <!-- 16 · PRIVACY & SAFETY ──────────────────────── -->
+  <section class="screen" id="s-privacy" aria-label="Privacy and safety" hidden>
+    <div class="sign tall">
+      <div class="sign-title"><span data-t="privacy">Privacy &amp; safety</span></div>
+      <div class="sign-body scroll" id="privacyBody"></div>
+    </div>
+    <div class="row-btns"><button class="sq" data-act="back" aria-label="Back" data-ico="back"></button></div>
+  </section>
+
+  <!-- 20 · CREDITS & LEGAL ───────────────────────── -->
+  <section class="screen" id="s-credits" aria-label="Credits and legal" hidden>
+    <div class="sign tall">
+      <div class="sign-title"><span data-t="credits">Credits</span></div>
+      <div class="sign-body scroll" id="creditsBody"></div>
+    </div>
+    <div class="row-btns"><button class="sq" data-act="back" aria-label="Back" data-ico="back"></button></div>
+  </section>
+
+  <!-- stats -->
+  <section class="screen" id="s-stats" aria-label="Best scores" hidden>
+    <div class="sign">
+      <div class="sign-title"><span data-t="stats">Best scores</span></div>
+      <div class="sign-body stack" id="statsBody"></div>
+    </div>
+    <div class="row-btns"><button class="sq" data-act="back" aria-label="Back" data-ico="back"></button></div>
+  </section>
+
+  <!-- 17 · REPORT / BLOCK ────────────────────────── -->
+  <section class="screen" id="s-report" aria-label="Report or block" hidden>
+    <div class="sign tall">
+      <div class="sign-title"><span data-t="report">Report / block</span></div>
+      <div class="sign-body report">
+        <ul class="rep-list" id="repList"></ul>
+        <div class="rep-reasons" id="repReasons" hidden></div>
+        <p class="note" id="repNote" data-t="report_note">Pick a player. Reports are reviewed; blocking hides their reactions and drawings for you.</p>
+      </div>
+    </div>
+    <div class="row-btns"><button class="sq" data-act="back" aria-label="Back" data-ico="back"></button></div>
+  </section>
+
+  <!-- 18 · CONNECTION / 19 · ERROR ───────────────── -->
+  <section class="screen" id="s-conn" aria-label="Connecting" hidden>
+    <div class="sign">
+      <div class="sign-title"><span id="connTitle" data-t="connecting">Connecting…</span></div>
+      <div class="sign-body stack center">
+        <div class="spinner" aria-hidden="true"><span data-ico="brush"></span></div>
+        <p class="note" id="connNote"></p>
+        <button class="wbtn" data-act="connCancel"><span data-ico="close"></span><span class="lbl" data-t="cancel">Cancel</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="s-error" aria-label="Error" hidden>
+    <div class="sign">
+      <div class="sign-title"><span id="errTitle" data-t="oops">Oops!</span></div>
+      <div class="sign-body stack center">
+        <div class="err-ico" id="errIco" data-ico="close"></div>
+        <p class="note" id="errMsg"></p>
+        <button class="wbtn" data-act="errRetry" id="errRetry"><span data-ico="retry"></span><span class="lbl" data-t="retry">Retry</span></button>
+        <button class="wbtn" data-act="errHome"><span data-ico="home"></span><span class="lbl" data-t="menu">Menu</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- overlays ───────────────────────────────────── -->
+  <div class="overlay" id="o-result" hidden role="dialog" aria-modal="true" aria-label="Round result">
+    <div class="sign res">
+      <div class="sign-title"><span id="resTitle"></span></div>
+      <div class="sign-body res-body">
+        <div class="res-chars" id="resChars"></div>
+        <div class="res-ans" id="resAns"></div>
+        <div class="res-pts" id="resPts"></div>
+        <ul class="res-list" id="resList" hidden></ul>
+      </div>
+    </div>
+    <div class="row-btns"><button class="wbtn big go" data-act="next" id="btnNext"><span data-ico="play"></span><span class="lbl" data-t="next">Next</span></button></div>
+  </div>
+
+  <div class="overlay" id="o-pause" hidden role="dialog" aria-modal="true" aria-label="Paused">
+    <div class="sign">
+      <div class="sign-title"><span id="pauseTitle" data-t="paused">Paused</span></div>
+      <div class="sign-body stack">
+        <button class="wbtn big go" data-act="resume"><span data-ico="play"></span><span class="lbl" data-t="resume">Resume</span></button>
+        <button class="wbtn" data-act="restart" id="btnRestart"><span data-ico="retry"></span><span class="lbl" data-t="restart">Restart</span></button>
+        <button class="wbtn" data-act="goAudio2"><span data-ico="sound"></span><span class="lbl" data-t="audio">Audio</span></button>
+        <button class="wbtn" data-act="quit"><span data-ico="home"></span><span class="lbl" data-t="menu">Menu</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="o-confirm" hidden role="alertdialog" aria-modal="true" aria-labelledby="confTitle">
+    <div class="sign">
+      <div class="sign-title"><span id="confTitle"></span></div>
+      <div class="sign-body stack center">
+        <p class="note" id="confMsg"></p>
+        <button class="wbtn big go" data-act="confYes"><span data-ico="check"></span><span class="lbl" data-t="yes">Yes</span></button>
+        <button class="wbtn big" data-act="confNo"><span data-ico="close"></span><span class="lbl" data-t="no">No</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="banner" id="banner" hidden role="status" aria-live="polite"><span class="spinner sm" aria-hidden="true"><span data-ico="brush"></span></span><span id="bannerTxt"></span></div>
+  <div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+</div>
+
+<noscript><p style="color:#fff;font:20px sans-serif;padding:24px">DOODLE DUEL needs JavaScript enabled.</p></noscript>
+<script src="config.js"></script>
+<script src="js/core.js"></script>
+<script src="js/art.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/pad.js"></script>
+<script src="js/net.js"></script>
+<script src="js/app.js"></script>
+<script src="../hub-return.js" defer></script></body>
+</html>
