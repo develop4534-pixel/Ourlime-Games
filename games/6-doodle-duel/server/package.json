@@ -1,0 +1,17 @@
+{
+  "name": "doodle-duel-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WebSocket room server for Doodle Duel",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}
