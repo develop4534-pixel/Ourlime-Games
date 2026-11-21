@@ -74,14 +74,28 @@ gameCards.forEach((card, index) => {
 });
 
 gameCards.forEach((card) => {
+    const flipCard = (event) => {
+        if (event.target.closest(".game-card__play")
+            || event.target.closest(".game-rating")) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        card.classList.toggle("is-flipped");
+    };
+
+    card.querySelectorAll(".game-cover, .play-icon").forEach((frontControl) => {
+        frontControl.setAttribute("role", "button");
+        frontControl.setAttribute("aria-label", `Show options for ${card.querySelector("h3")?.textContent || "game"}`);
+        frontControl.addEventListener("click", flipCard);
+    });
+
     card.addEventListener("pointerdown", (event) => {
-        if ((event.pointerType === "touch" || event.pointerType === "pen")
-            && !event.target.closest(".game-card__play")
-            && !event.target.closest(".game-rating")
-            && !card.classList.contains("is-flipped")) {
-            event.preventDefault();
-            card.classList.add("is-flipped");
-        }
+        if (event.pointerType === "mouse") return;
+        if (event.target.closest(".game-card__play")
+            || event.target.closest(".game-rating")) return;
+
+        event.preventDefault();
+        card.classList.toggle("is-flipped");
     });
 });
 
@@ -309,8 +323,9 @@ const startLobbyMusic = () => {
     setupLobbyBassEffect();
 };
 
-document.addEventListener("pointerdown", startLobbyMusic, { once: true });
-document.addEventListener("keydown", startLobbyMusic, { once: true });
+document.addEventListener("pointerdown", startLobbyMusic);
+document.addEventListener("touchstart", startLobbyMusic, { passive: true });
+document.addEventListener("keydown", startLobbyMusic);
 window.addEventListener("load", () => {
     setupLobbyBassEffect();
 });
