@@ -33,12 +33,33 @@ class World2 {
       [6700,220,22,70,2.4,0],[7700,220,20,65,2.3,1],[8700,230,23,70,2,2],
       [9700,220,20,75,2.5,0],[10800,220,23,70,2.2,1],[11700,240,22,60,2.4,2]
     ];
+    this.specialCoins = [
+      {id:'sky-coin-01',x:650,y:170},{id:'sky-coin-02',x:1880,y:150},
+      {id:'sky-coin-03',x:3150,y:165},{id:'sky-coin-04',x:4350,y:155},
+      {id:'sky-coin-05',x:5600,y:115},{id:'sky-coin-06',x:6900,y:160},
+      {id:'sky-coin-07',x:8200,y:90,hidden:true},{id:'sky-coin-08',x:9400,y:150},
+      {id:'sky-coin-09',x:10600,y:145},{id:'sky-coin-10',x:11900,y:160},
+      {id:'sky-coin-secret',x:5900,y:160,hiddenRoute:true}
+    ];
+    this.magnetPickups = [
+      {id:'sky-magnet-01',x:1540,y:190},{id:'sky-magnet-02',x:7400,y:190},
+      {id:'sky-magnet-03',x:10970,y:160}
+    ];
+    this.precisionTargets = [
+      {id:'sky-precision-01',x:3160,y:200,r:46},
+      {id:'sky-precision-02',x:6760,y:185,r:46},
+      {id:'sky-precision-03',x:10180,y:190,r:46}
+    ];
+    this.secretRoute = {x:5050,y:190,r:52,exitX:5900,exitY:210};
+    this.hiddenArea = {x:8200,y:95,r:125};
+    this.checkpointIndices = [9,19,29,39];
   }
 
   createLevel() {
     const pads = this.platforms.map((p, i) => ({
       x: p[0] + p[2] / 2, y0: p[1], y: p[1], w: p[2],
-      a: 0, f: 0, ph: 0, fin: i === this.platforms.length - 1
+      a: 0, f: 0, ph: 0, fin: i === this.platforms.length - 1,
+      checkpoint: this.checkpointIndices.includes(i)
     }));
     this.movingPlatforms.forEach(p => pads.push({
       x: p[0] + p[2] / 2, y0: p[1], y: p[1], w: p[2],
@@ -53,7 +74,12 @@ class World2 {
     }));
     this.hazards = hazards;
     this.update(0);
-    return {pads,stars,hazards,world:this};
+    return {
+      pads,stars,hazards,world:this,
+      specialCoins:this.specialCoins.map(coin=>({...coin})),
+      magnetPickups:this.magnetPickups.map(pickup=>({...pickup})),
+      precisionTargets:this.precisionTargets.map(target=>({...target}))
+    };
   }
 
   update(seconds) {

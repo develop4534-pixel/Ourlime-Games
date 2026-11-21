@@ -242,6 +242,41 @@
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
+      const hazeX = width * (0.66 + Math.sin(this.time * 0.12) * 0.05);
+      const haze = ctx.createRadialGradient(hazeX, height * 0.22, 0, hazeX, height * 0.22, width * 0.52);
+      haze.addColorStop(0, this.number === 6 ? 'rgba(173,235,255,.22)' : 'rgba(255,231,173,.14)');
+      haze.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = haze;
+      ctx.fillRect(0, 0, width, height);
+
+      const drawRidge = (baseY, peak, color, alpha, factor) => {
+        const segment = Math.max(220 * scale, width * 0.42);
+        const offset = ((cameraX * scale * factor % segment) + segment) % segment;
+        const start = -segment - offset;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(start, height);
+        ctx.lineTo(start, baseY);
+        for (let x = start; x < width + segment; x += segment) {
+          const index = Math.floor((x + cameraX * scale * factor) / segment);
+          const variation = 0.62 + ((index * 7 % 7 + 7) % 7) * 0.055;
+          ctx.quadraticCurveTo(
+            x + segment * 0.52,
+            baseY - peak * variation,
+            x + segment,
+            baseY + Math.sin(index * 2.1) * peak * 0.04
+          );
+        }
+        ctx.lineTo(width + segment, height);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      };
+      drawRidge(height * 0.62, height * 0.16, this.config.colors[0], 0.82, 0.025);
+      drawRidge(height * 0.74, height * 0.19, this.config.colors[1], 0.5, 0.075);
+      drawRidge(height * 0.86, height * 0.16, this.config.colors[2], 0.2, 0.16);
+
       for (const decoration of this.decorations) {
         const px = ((decoration.x - cameraX * 0.18) * scale) % (width + 200 * scale);
         const x = px < -100 * scale ? px + width + 200 * scale : px;

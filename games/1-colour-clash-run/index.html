@@ -138,6 +138,9 @@
         border-radius: 12px;
         overflow: hidden;
         background: #000;
+        outline: 1px solid rgba(201, 168, 255, 0.5);
+        outline-offset: 3px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.38), 0 0 28px rgba(201, 168, 255, 0.16);
       }
       canvas#cv {
         width: 100%;
@@ -1053,13 +1056,15 @@
         outline: 3px solid #fff28a;
         outline-offset: 3px;
       }
-      button.o:hover:not(:disabled) {
-        border-color: #fff0a8;
-        box-shadow:
-          0 3px 0 rgba(10, 12, 35, 0.72),
-          0 0 16px rgba(110, 221, 255, 0.38),
-          inset 0 1px rgba(255, 255, 255, 0.35);
-        transform: translateY(-2px);
+      @media (hover: hover) {
+        button.o:hover:not(:disabled) {
+          border-color: #fff0a8;
+          box-shadow:
+            0 3px 0 rgba(10, 12, 35, 0.72),
+            0 0 16px rgba(110, 221, 255, 0.38),
+            inset 0 1px rgba(255, 255, 255, 0.35);
+          transform: translateY(-2px);
+        }
       }
       button.o:active:not(:disabled) {
         transform: translateY(2px);
@@ -1080,10 +1085,12 @@
           inset 0 1px rgba(255, 255, 255, 0.62);
         transition: box-shadow 160ms ease, transform 160ms ease, filter 160ms ease;
       }
-      button.go:hover {
-        filter: brightness(1.08);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 0 #168b72, 0 0 18px rgba(81, 255, 189, 0.45);
+      @media (hover: hover) {
+        button.go:hover {
+          filter: brightness(1.08);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 0 #168b72, 0 0 18px rgba(81, 255, 189, 0.45);
+        }
       }
       button.go:active {
         transform: translateY(2px);

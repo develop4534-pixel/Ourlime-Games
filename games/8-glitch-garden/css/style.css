@@ -39,6 +39,10 @@ canvas#game { position: absolute; inset: 0; width: 100%; height: 100%; display: 
 .backdrop .dim { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(5,30,60,.05), rgba(5,30,60,.55)); }
 .backdrop.menu-bg .blur { background-image: url(../assets/cover-1000.jpg); filter: blur(9px) saturate(1.1) brightness(.7); inset: -4%; transform: none; }
 .backdrop.menu-bg .dim { background: linear-gradient(180deg, rgba(8,40,80,.25), rgba(8,40,80,.55)); }
+.backdrop.menu-bg::after { content: ""; position: absolute; inset: -10%; pointer-events: none; opacity: .34;
+  background: radial-gradient(circle at 22% 76%, rgba(109,255,124,.34), transparent 28%), radial-gradient(circle at 78% 28%, rgba(25,211,255,.3), transparent 26%);
+  animation: garden-glow 12s ease-in-out infinite alternate; }
+@keyframes garden-glow { to { transform: translate(2%, -1%) scale(1.08); opacity: .52; } }
 
 /* ---------- Screen system ---------- */
 .screen {
@@ -85,7 +89,7 @@ canvas#game { position: absolute; inset: 0; width: 100%; height: 100%; display: 
   text-shadow: 0 .09em 0 #14531f, 0 0 .4em rgba(0,60,10,.55);
   transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
 }
-.btn:hover { filter: brightness(1.1) saturate(1.1); transform: translateY(-2px) scale(1.03); }
+@media (hover: hover) { .btn:hover { filter: brightness(1.1) saturate(1.1); transform: translateY(-2px) scale(1.03); } }
 .btn:active, .btn.pressed { transform: translateY(.18em) scale(.98); box-shadow: 0 0 0 .14em #14531f, 0 .05em 0 .14em #0f4219, 0 .2em .4em rgba(0,0,0,.3), inset 0 .12em 0 rgba(255,255,255,.4); }
 .btn:focus-visible { box-shadow: 0 0 0 .14em #14531f, 0 0 0 .4em var(--yellow), 0 0 1.2em .5em rgba(255,217,59,.8), 0 .22em 0 .14em #0f4219; }
 .btn.blue { background: linear-gradient(180deg, #7fe6ff 0%, #27b4ff 45%, #1e63e9 100%); box-shadow: 0 0 0 .14em #0f2f78, 0 .22em 0 .14em #0b2559, 0 .5em .8em rgba(0,0,0,.35), inset 0 .12em 0 rgba(255,255,255,.55), inset 0 -.2em 0 rgba(0,30,120,.25); text-shadow: 0 .09em 0 #0f2f78; }
@@ -97,7 +101,7 @@ canvas#game { position: absolute; inset: 0; width: 100%; height: 100%; display: 
   0%, 100% { transform: scale(1); filter: drop-shadow(0 0 .2em rgba(255,240,120,.0)); }
   50% { transform: scale(1.06); filter: drop-shadow(0 0 .7em rgba(255,240,120,.95)); }
 }
-.btn.pulse:hover { animation-play-state: paused; }
+@media (hover: hover) { .btn.pulse:hover { animation-play-state: paused; } }
 .btn[disabled] { filter: grayscale(.9) brightness(.8); cursor: not-allowed; }
 .btn .ic { display: inline-block; vertical-align: -.12em; width: 1.1em; height: 1.1em; margin-right: .4em; }
 
@@ -109,7 +113,7 @@ canvas#game { position: absolute; inset: 0; width: 100%; height: 100%; display: 
   display: grid; place-items: center; transition: transform .12s, filter .12s; outline: none;
 }
 .sqbtn svg { width: 56%; height: 56%; filter: drop-shadow(0 2px 0 rgba(0,60,10,.6)); }
-.sqbtn:hover { transform: translateY(-2px) scale(1.06); filter: brightness(1.1); }
+@media (hover: hover) { .sqbtn:hover { transform: translateY(-2px) scale(1.06); filter: brightness(1.1); } }
 .sqbtn:active { transform: translateY(.14em) scale(.96); }
 .sqbtn:focus-visible { box-shadow: 0 0 0 .12em #14531f, 0 0 0 .34em var(--yellow), 0 0 1em .4em rgba(255,217,59,.8); }
 .sqbtn.muted { filter: grayscale(.7) brightness(.85); }
@@ -167,7 +171,7 @@ canvas#game { position: absolute; inset: 0; width: 100%; height: 100%; display: 
   position: relative; appearance: none; border: 0; padding: 0; cursor: pointer; text-align: center; font-family: var(--font); color: #fff; border-radius: 1em; overflow: hidden; outline: none;
   background: #2a1405; box-shadow: 0 0 0 .18em #124d1c, 0 .3em 0 .18em #0b3012, 0 .7em 1em rgba(0,0,0,.4); transition: transform .15s, filter .15s; font-size: 1em;
 }
-.card:hover:not(.locked) { transform: translateY(-4px) scale(1.03); filter: brightness(1.08); }
+@media (hover: hover) { .card:hover:not(.locked) { transform: translateY(-4px) scale(1.03); filter: brightness(1.08); } }
 .card:focus-visible { box-shadow: 0 0 0 .18em #124d1c, 0 0 0 .45em var(--yellow), 0 0 1.4em .5em rgba(255,217,59,.8); }
 .card { display: block; width: 100%; }
 .card .meta, .card .name, .card .sub, .card .stars { display: block; }

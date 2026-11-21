@@ -38,7 +38,8 @@ button { cursor: pointer; }
 .bg-b { background: radial-gradient(circle at 76% 38%, #ffbd5a 0, #ff3a2e 32%, #a4120c 72%, #5c0a08 100%);
   clip-path: polygon(54% 0, 50% 12%, 56% 22%, 49% 36%, 55% 50%, 48% 64%, 54% 78%, 50% 100%, 100% 100%, 100% 0); }
 .bg-bolt { background: linear-gradient(#fff, #7ff0ff); filter: drop-shadow(0 0 .5rem #7ff0ff) drop-shadow(0 0 1.1rem #fff);
-  clip-path: polygon(54% 0, 50% 12%, 56% 22%, 49% 36%, 55% 50%, 48% 64%, 54% 78%, 50% 100%, 51.1% 100%, 55.1% 78%, 49.1% 64%, 56.1% 50%, 50.1% 36%, 57.1% 22%, 51.1% 12%, 55.1% 0); opacity: .85; }
+  clip-path: polygon(54% 0, 50% 12%, 56% 22%, 49% 36%, 55% 50%, 48% 64%, 54% 78%, 50% 100%, 51.1% 100%, 55.1% 78%, 49.1% 64%, 56.1% 50%, 50.1% 36%, 57.1% 22%, 51.1% 12%, 55.1% 0); opacity: .85; animation: bolt-glow 2.8s ease-in-out infinite; }
+@keyframes bolt-glow { 50% { opacity: .52; } }
 .bg-dots { background-image: radial-gradient(rgba(255,255,255,.14) .04rem, transparent .06rem); background-size: .55rem .55rem; opacity: .7; }
 #floaters { position: absolute; inset: 0; pointer-events: none; }
 .fl { position: absolute; width: 1.6rem; height: 1.6rem; opacity: .16; animation: floaty 9s ease-in-out infinite; }
@@ -260,10 +261,12 @@ body.land .screen { max-width: 15rem; }
 
 .choices { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
 .choice { position: relative; aspect-ratio: 1.45; min-height: 2.6rem; display: grid; place-items: center; padding: .25rem; border-radius: .6rem; background: linear-gradient(#ffffff, #dfe9ff); border: .06rem solid var(--line);
-  box-shadow: 0 .1rem 0 var(--line), 0 .2rem .35rem rgba(0,0,0,.3); transition: transform .08s, background .2s; }
+  box-shadow: 0 .1rem 0 var(--line), 0 .2rem .35rem rgba(0,0,0,.3); transition: transform .12s, background .2s, box-shadow .12s, filter .12s; }
 .choice .pic { width: 70%; height: 82%; max-height: 100%; }
 .choice:active:not(:disabled) { transform: translateY(.08rem); box-shadow: 0 .02rem 0 var(--line); }
 .choice:disabled { cursor: default; }
+@media (hover:hover) { .choice:hover:not(:disabled):not(.dim):not(:active) { transform: translateY(-.08rem); filter: brightness(1.05); box-shadow: 0 .16rem 0 var(--line), 0 .35rem .55rem rgba(0,0,0,.35); } }
+.choice:focus-visible { outline: .08rem solid var(--gold); outline-offset: .08rem; }
 .choice.correct { background: linear-gradient(#b8ffc6, #5be07a); animation: pop .45s; }
 .choice.wrong { background: linear-gradient(#ffc2bb, #ff6a5a); animation: shake .4s; }
 .choice.dim { filter: grayscale(.6) opacity(.55); }
