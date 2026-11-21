@@ -1,9 +1,83 @@
 const gameCards = document.querySelectorAll(".game-card");
 
+const ratingStorageKey = "ourlime-game-ratings";
+
+const getSavedRatings = () => {
+    try {
+        return JSON.parse(localStorage.getItem(ratingStorageKey) || "{}");
+    } catch (_) {
+        return {};
+    }
+};
+
+const savedRatings = getSavedRatings();
+
+const setStarSelection = (ratingElement, rating) => {
+    ratingElement.dataset.rating = String(rating);
+    ratingElement.querySelectorAll(".game-rating__star").forEach((star, index) => {
+        const selected = index < rating;
+        star.classList.toggle("is-selected", selected);
+        star.setAttribute("aria-checked", index === rating - 1 ? "true" : "false");
+    });
+};
+
+gameCards.forEach((card, index) => {
+    const front = card.querySelector(".game-card__front");
+    if (!front) return;
+
+    const gameKey = `game-${index + 1}`;
+    const gameName = card.querySelector("h3")?.textContent || `Game ${index + 1}`;
+    const ratingElement = document.createElement("div");
+    ratingElement.className = "game-rating";
+    ratingElement.setAttribute("role", "radiogroup");
+    ratingElement.setAttribute("aria-label", `Rate ${gameName}`);
+
+    for (let starIndex = 1; starIndex <= 5; starIndex++) {
+        const star = document.createElement("button");
+        star.type = "button";
+        star.className = "game-rating__star";
+        star.textContent = "★";
+        star.setAttribute("role", "radio");
+        star.setAttribute("aria-label", `${starIndex} out of 5 stars`);
+        star.setAttribute("aria-checked", "false");
+        star.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            savedRatings[gameKey] = starIndex;
+            localStorage.setItem(ratingStorageKey, JSON.stringify(savedRatings));
+            setStarSelection(ratingElement, starIndex);
+        });
+        star.addEventListener("mouseenter", () => {
+            setStarSelection(ratingElement, starIndex);
+        });
+        star.addEventListener("keydown", (event) => {
+            if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+            event.preventDefault();
+            const direction = event.key === "ArrowRight" ? 1 : -1;
+            const nextRating = Math.max(1, Math.min(5, starIndex + direction));
+            const nextStar = ratingElement.querySelectorAll(".game-rating__star")[nextRating - 1];
+            nextStar?.focus();
+        });
+        ratingElement.append(star);
+    }
+
+    ratingElement.addEventListener("mouseleave", () => {
+        setStarSelection(ratingElement, Number(savedRatings[gameKey]) || 0);
+    });
+    const ratingPosition = front.querySelector(".game-info > div");
+    if (ratingPosition) {
+        ratingPosition.append(ratingElement);
+    } else {
+        front.append(ratingElement);
+    }
+    setStarSelection(ratingElement, Number(savedRatings[gameKey]) || 0);
+});
+
 gameCards.forEach((card) => {
     card.addEventListener("pointerdown", (event) => {
         if ((event.pointerType === "touch" || event.pointerType === "pen")
             && !event.target.closest(".game-card__play")
+            && !event.target.closest(".game-rating")
             && !card.classList.contains("is-flipped")) {
             event.preventDefault();
             card.classList.add("is-flipped");
@@ -19,16 +93,13 @@ document.addEventListener("pointerdown", (event) => {
     });
 });
 
-const lobbyMusic = new Audio("games/3-bounce-buddie/travi.mp3");
-lobbyMusic.loop = true;
-lobbyMusic.preload = "auto";
-lobbyMusic.volume = 0.5;
-lobbyMusic.autoplay = true;
-
 let lobbyMusicStarted = false;
 let lobbyAudioContext = null;
 let lobbyBassAnalyser = null;
 let lobbyBassData = null;
+let lobbyMusicBuffer = null;
+let lobbyMusicSource = null;
+let lobbyMusicGain = null;
 let lobbyLastEnergy = 0;
 let lobbyBeatTime = 0;
 let lobbyBeatInterval = 0;
@@ -38,19 +109,22 @@ let lobbyBeatPulse = 0;
 let lobbyAdaptiveBassThreshold = 0.30;
 let lobbyRecentBassAverage = 0;
 let lobbyBeatPhase = 0;
+let lobbyMusicSetupPromise = null;
 const lobbyMinimumBassEnergy = 0.18;
 const lobbyCards = Array.from(document.querySelectorAll(".game-card"));
 const lobbyFeatured = document.querySelector(".featured");
 
 const setupLobbyBassEffect = async () => {
-    if (lobbyBassAnalyser) {
+    if (lobbyBassAnalyser && lobbyMusicSource) {
         if (lobbyAudioContext && lobbyAudioContext.state === "suspended") {
             await lobbyAudioContext.resume().catch(() => {});
         }
         return;
     }
+    if (lobbyMusicSetupPromise) return lobbyMusicSetupPromise;
 
-    try {
+    lobbyMusicSetupPromise = (async () => {
+      try {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         if (!AudioContextClass) return;
         lobbyAudioContext = new AudioContextClass();
@@ -59,12 +133,41 @@ const setupLobbyBassEffect = async () => {
         lobbyBassAnalyser.smoothingTimeConstant = 0.72;
         lobbyBassData = new Uint8Array(lobbyBassAnalyser.frequencyBinCount);
 
-        const source = lobbyAudioContext.createMediaElementSource(lobbyMusic);
-        source.connect(lobbyBassAnalyser);
+        lobbyMusicGain = lobbyAudioContext.createGain();
+        lobbyMusicGain.gain.setValueAtTime(0.0001, lobbyAudioContext.currentTime);
+        lobbyMusicGain.gain.exponentialRampToValueAtTime(0.38, lobbyAudioContext.currentTime + 1.2);
+        const lobbyMusicCompressor = lobbyAudioContext.createDynamicsCompressor();
+        lobbyMusicCompressor.threshold.value = -18;
+        lobbyMusicCompressor.knee.value = 24;
+        lobbyMusicCompressor.ratio.value = 8;
+        lobbyMusicCompressor.attack.value = 0.012;
+        lobbyMusicCompressor.release.value = 0.25;
+        lobbyMusicGain.connect(lobbyMusicCompressor);
+        lobbyMusicCompressor.connect(lobbyBassAnalyser);
         lobbyBassAnalyser.connect(lobbyAudioContext.destination);
         await lobbyAudioContext.resume().catch(() => {});
-    } catch (_) {
+
+        if (!lobbyMusicBuffer) {
+            const response = await fetch("games/3-bounce-buddie/travi.mp3");
+            if (!response.ok) throw new Error(`Lobby music load failed: ${response.status}`);
+            lobbyMusicBuffer = await lobbyAudioContext.decodeAudioData(await response.arrayBuffer());
+        }
+
+        lobbyMusicSource = lobbyAudioContext.createBufferSource();
+        lobbyMusicSource.buffer = lobbyMusicBuffer;
+        lobbyMusicSource.loop = true;
+        lobbyMusicSource.connect(lobbyMusicGain);
+        lobbyMusicSource.start(0);
+        lobbyMusicStarted = true;
+      } catch (_) {
         lobbyBassAnalyser = null;
+      }
+    })();
+
+    try {
+        await lobbyMusicSetupPromise;
+    } finally {
+        lobbyMusicSetupPromise = null;
     }
 };
 
@@ -222,36 +325,30 @@ const animateLobbyBassEffect = () => {
 };
 
 const playLobbyMusic = () => {
-    if (lobbyMusicStarted) {
-        lobbyMusic.play().catch(() => {});
+    if (lobbyMusicStarted && lobbyAudioContext) {
+        lobbyAudioContext.resume().catch(() => {});
         return;
     }
+    setupLobbyBassEffect();
 };
 
 const startLobbyMusic = () => {
-    lobbyMusicStarted = true;
-    lobbyMusic.muted = false;
-    lobbyMusic.play().catch(() => {});
     setupLobbyBassEffect();
 };
 
 document.addEventListener("pointerdown", startLobbyMusic, { once: true });
 document.addEventListener("keydown", startLobbyMusic, { once: true });
 window.addEventListener("load", () => {
-    lobbyMusic.muted = true;
-    lobbyMusic.play().then(() => {
-        lobbyMusic.muted = false;
-        lobbyMusicStarted = true;
-        setupLobbyBassEffect();
-    }).catch(() => {
-        lobbyMusic.muted = false;
-    });
+    setupLobbyBassEffect();
 });
 
 document.querySelectorAll('a[href*="/games/"], a[href^="games/"]').forEach((link) => {
     link.addEventListener("click", () => {
-        lobbyMusic.pause();
-        lobbyMusic.currentTime = 0;
+        if (lobbyMusicSource) {
+            lobbyMusicSource.stop();
+            lobbyMusicSource.disconnect();
+            lobbyMusicSource = null;
+        }
         lobbyMusicStarted = false;
         sessionStorage.setItem("ourlimeResumeLobbyMusic", "true");
     });
@@ -263,6 +360,11 @@ window.addEventListener("pageshow", () => {
         startLobbyMusic();
     } else {
         playLobbyMusic();
+    }
+});
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && lobbyAudioContext) {
+        lobbyAudioContext.resume().catch(() => {});
     }
 });
 animateLobbyBassEffect();
