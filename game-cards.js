@@ -110,7 +110,6 @@ let lobbyAdaptiveBassThreshold = 0.30;
 let lobbyRecentBassAverage = 0;
 let lobbyBeatPhase = 0;
 let lobbyMusicSetupPromise = null;
-const lobbyMinimumBassEnergy = 0.18;
 const lobbyCards = Array.from(document.querySelectorAll(".game-card"));
 const lobbyFeatured = document.querySelector(".featured");
 
@@ -222,34 +221,8 @@ const animateLobbyBassEffect = () => {
     const bassHit = energy > lobbyLastEnergy + 0.08;
     lobbyLastEnergy = lobbyLastEnergy * 0.78 + energy * 0.22;
     const displayEnergy = Math.max(energy, lobbyLastEnergy);
-    const hasActiveBass = displayEnergy >= lobbyMinimumBassEnergy;
-    if (!hasActiveBass) {
-        lobbyBeatPulse = 0;
-        document.body.classList.remove("lobby-trance", "lobby-soft-rhythm", "lobby-strong-bass");
-        lobbyCards.forEach((card) => {
-            card.classList.remove("is-bass-hit", "is-trance-hit");
-        });
-        if (lobbyFeatured) {
-            lobbyFeatured.classList.remove("is-bass-hit", "is-trance-hit");
-            lobbyFeatured.style.setProperty("--featured-x", "0px");
-            lobbyFeatured.style.setProperty("--featured-y", "0px");
-            lobbyFeatured.style.setProperty("--featured-rotate", "0deg");
-            lobbyFeatured.style.setProperty("--featured-energy", "0");
-            lobbyFeatured.style.setProperty("--featured-brightness", "1");
-        }
-        lobbyCards.forEach((card) => {
-            card.style.setProperty("--bass-x", "0px");
-            card.style.setProperty("--bass-y", "0px");
-            card.style.setProperty("--bass-rotate", "0deg");
-            card.style.setProperty("--bass-blur", "0px");
-            card.style.setProperty("--bass-spread", "0px");
-            card.style.setProperty("--bass-inset", "0px");
-            card.style.setProperty("--bass-brightness", "1");
-            card.style.setProperty("--bass-energy", "0");
-        });
-    }
     const now = performance.now();
-    const strongBassHit = hasActiveBass && energy > 0.48 && now - lobbyLastStrongHit > 260;
+    const strongBassHit = energy > 0.48 && now - lobbyLastStrongHit > 260;
 
     if (strongBassHit) {
         lobbyBeatPulse = 1;
@@ -272,7 +245,7 @@ const animateLobbyBassEffect = () => {
         lobbyCards.forEach((card, index) => {
             window.setTimeout(() => retriggerLobbyVibration(card, "is-bass-hit", 180), index * 12);
         });
-    } else if (hasActiveBass && tranceEnergy > 0.32 && now - lobbyBeatTime > 420) {
+    } else if (tranceEnergy > 0.32 && now - lobbyBeatTime > 420) {
         const card = lobbyCards[lobbyBeatCount % lobbyCards.length];
         if (card) createLobbyBassWave(card, false);
         retriggerLobbyVibration(lobbyFeatured, "is-trance-hit", 260);
@@ -281,7 +254,7 @@ const animateLobbyBassEffect = () => {
         lobbyBeatCount++;
     }
 
-    document.body.classList.toggle("lobby-soft-rhythm", hasActiveBass && tranceEnergy > 0.32 && !strongBassHit);
+    document.body.classList.toggle("lobby-soft-rhythm", tranceEnergy > 0.32 && !strongBassHit);
     document.body.classList.toggle("lobby-strong-bass", strongBassHit);
     lobbyBeatPulse *= 0.91;
     const tempoInterval = lobbyBeatInterval > 0
@@ -319,7 +292,7 @@ const animateLobbyBassEffect = () => {
         lobbyFeatured.style.setProperty("--featured-energy", displayEnergy.toFixed(3));
         lobbyFeatured.style.setProperty("--featured-brightness", (1 + displayEnergy * 0.10).toFixed(3));
     }
-    document.body.classList.toggle("lobby-trance", hasActiveBass && tranceEnergy > 0.32);
+    document.body.classList.toggle("lobby-trance", tranceEnergy > 0.32);
 
     window.requestAnimationFrame(animateLobbyBassEffect);
 };
