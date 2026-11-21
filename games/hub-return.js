@@ -28,7 +28,7 @@
 
     const stylesheet = document.createElement("link");
     stylesheet.rel = "stylesheet";
-    stylesheet.href = new URL("hub-return.css", script.src).href;
+    stylesheet.href = new URL("hub-return.css?v=20261121-1", script.src).href;
     document.head.append(stylesheet);
 
     const button = document.createElement("button");

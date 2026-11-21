@@ -74,6 +74,12 @@ gameCards.forEach((card, index) => {
 });
 
 gameCards.forEach((card) => {
+    const coverImage = card.querySelector(".game-cover img");
+    const back = card.querySelector(".game-card__back");
+    if (coverImage && back) {
+        back.style.setProperty("--game-card-art", `url("${coverImage.src}")`);
+    }
+
     const flipCard = (event) => {
         if (event.target.closest(".game-card__play")
             || event.target.closest(".game-rating")) return;
@@ -127,11 +133,18 @@ let lobbyMusicSetupPromise = null;
 const lobbyCards = Array.from(document.querySelectorAll(".game-card"));
 const lobbyFeatured = document.querySelector(".featured");
 
-const setupLobbyBassEffect = async () => {
-    if (lobbyBassAnalyser && lobbyMusicSource) {
-        if (lobbyAudioContext && lobbyAudioContext.state === "suspended") {
-            await lobbyAudioContext.resume().catch(() => {});
+const resumeLobbyAudio = () => {
+    if (!lobbyAudioContext || lobbyAudioContext.state !== "suspended") return;
+    lobbyAudioContext.resume().catch((error) => {
+        if (error.name !== "NotAllowedError") {
+            console.error("Lobby music could not resume.", error);
         }
+    });
+};
+
+const setupLobbyBassEffect = async () => {
+    resumeLobbyAudio();
+    if (lobbyBassAnalyser && lobbyMusicSource) {
         return;
     }
     if (lobbyMusicSetupPromise) return lobbyMusicSetupPromise;
@@ -158,7 +171,7 @@ const setupLobbyBassEffect = async () => {
         lobbyMusicGain.connect(lobbyMusicCompressor);
         lobbyMusicCompressor.connect(lobbyBassAnalyser);
         lobbyBassAnalyser.connect(lobbyAudioContext.destination);
-        await lobbyAudioContext.resume().catch(() => {});
+        resumeLobbyAudio();
 
         if (!lobbyMusicBuffer) {
             const response = await fetch("games/3-bounce-buddie/travi.mp3");
@@ -172,7 +185,8 @@ const setupLobbyBassEffect = async () => {
         lobbyMusicSource.connect(lobbyMusicGain);
         lobbyMusicSource.start(0);
         lobbyMusicStarted = true;
-      } catch (_) {
+      } catch (error) {
+        console.error("The Games Ourlime lobby music could not start.", error);
         lobbyBassAnalyser = null;
       }
     })();
@@ -312,8 +326,8 @@ const animateLobbyBassEffect = () => {
 };
 
 const playLobbyMusic = () => {
+    resumeLobbyAudio();
     if (lobbyMusicStarted && lobbyAudioContext) {
-        lobbyAudioContext.resume().catch(() => {});
         return;
     }
     setupLobbyBassEffect();
@@ -326,11 +340,9 @@ const startLobbyMusic = () => {
 document.addEventListener("pointerdown", startLobbyMusic);
 document.addEventListener("touchstart", startLobbyMusic, { passive: true });
 document.addEventListener("keydown", startLobbyMusic);
-window.addEventListener("load", () => {
-    setupLobbyBassEffect();
-});
+setupLobbyBassEffect();
 
-document.querySelectorAll('a[href*="/games/"], a[href^="games/"]').forEach((link) => {
+document.querySelectorAll(".primary-button, .game-card__play").forEach((link) => {
     link.addEventListener("click", () => {
         if (lobbyMusicSource) {
             lobbyMusicSource.stop();
@@ -352,7 +364,7 @@ window.addEventListener("pageshow", () => {
 });
 document.addEventListener("visibilitychange", () => {
     if (!document.hidden && lobbyAudioContext) {
-        lobbyAudioContext.resume().catch(() => {});
+        resumeLobbyAudio();
     }
 });
 animateLobbyBassEffect();
