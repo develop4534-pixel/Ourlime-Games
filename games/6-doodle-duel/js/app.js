@@ -56,7 +56,7 @@
     $$('[data-ico]', root).forEach(function (el) { el.innerHTML = A.ui(el.getAttribute('data-ico')); el.setAttribute('data-ico-done', el.getAttribute('data-ico')); el.removeAttribute('data-ico'); });
   }
   function applyI18n() {
-    I.setLang(save.lang || I.detect()); H.lang = I.getLang();
+    I.setLang('en'); H.lang = 'en';
     $$('[data-t]').forEach(function (el) { el.textContent = t(el.getAttribute('data-t')); });
     $$('[aria-label]').forEach(function (el) { if (!el.dataset.al0) el.dataset.al0 = el.getAttribute('aria-label'); el.setAttribute('aria-label', I.al(el.dataset.al0)); });
     $('#privacyBody').innerHTML = t('privacy_html');
@@ -106,7 +106,6 @@
     if (name === 'menu') { $('#menuBlue').innerHTML = A.char(0, 'idle'); $('#menuRed').innerHTML = A.char(1, 'idle', { flip: true }); }
     if (name === 'settings' || name === 'audio') applyAudio();
     if (name === 'options') syncOptions();
-    if (name === 'access') syncLangSeg();
     if (name === 'avatar') renderAvatar();
     if (name === 'rooms') renderProfileChip();
     if (name === 'create') syncCreate();
@@ -161,7 +160,6 @@
     seg($('#optTimer'), TIMER_LBL().map(function (l, i) { return { value: i, label: l }; }), function () { return save.timerMode; }, function (v) { save.timerMode = v; persist(); });
     $('#serverInput').value = sget(SKEY) || ''; $('#serverErr').hidden = true;
   }
-  function syncLangSeg() { seg($('#segLang'), [{ value: '', label: 'Auto' }, { value: 'en', label: 'EN' }, { value: 'es', label: 'ES' }], function () { return save.lang; }, function (v) { save.lang = v; persist(); applyI18n(); syncLangSeg(); }); }
   function nickText() { return D.nickname(save.nickA, save.nickB) || 'Zippy Fox'; }
   function headHTML(kind, cls) { return '<span class="hd ' + (cls || '') + '">' + A.char(kind, 'idle') + '</span>'; }
   function renderProfileChip() { $('#profChip').innerHTML = headHTML(save.character) + '<span>' + nickText() + '</span>' + A.ui('gear', 'sm'); $('#profChip .ico').style.cssText = 'width:.6rem;height:.6rem;margin-left:auto'; }

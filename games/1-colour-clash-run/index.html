@@ -5533,12 +5533,12 @@
         ) {
           pendingAvatarPurchase = null;
           return renderCharacterShop(
-            "El carrito o el saldo de XP cambió. Revísalo e inténtalo de nuevo.",
+            "The cart or your XP balance changed. Please review it and try again.",
           );
         }
         show(`<div class="panel character-reveal${S.rm ? " reduced-motion" : ""}" role="dialog" aria-modal="true" aria-labelledby="reveal-title">
-          <h1 id="reveal-title">${items.length === 1 ? "¡Nuevo personaje!" : "¡Nuevos personajes!"}</h1>
-          <p class="character-reveal-message">Confirma para añadir ${items.length === 1 ? "este personaje" : "estos personajes"} a tu colección.</p>
+          <h1 id="reveal-title">${items.length === 1 ? "New character!" : "New characters!"}</h1>
+          <p class="character-reveal-message">Confirm to add ${items.length === 1 ? "this character" : "these characters"} to your collection.</p>
           <div class="reveal-scene">
             <div class="reveal-flash" aria-hidden="true"></div>
             <div class="reveal-burst" aria-hidden="true"></div>
@@ -5722,7 +5722,7 @@ ${S.mode === "team" ? `<div class="menu-section menu-room"><div class="row"><b>R
           return renderCharacterReveal();
         } else if (k === "shop-cancel") {
           pendingAvatarPurchase = null;
-          return renderCharacterShop("Compra cancelada. No se gastó XP.");
+          return renderCharacterShop("Purchase canceled. No XP was spent.");
         } else if (k === "shop-confirm") {
           const purchase = pendingAvatarPurchase;
           if (!purchase || !Array.isArray(purchase.items)) {
@@ -5746,7 +5746,7 @@ ${S.mode === "team" ? `<div class="menu-section menu-room"><div class="row"><b>R
           ) {
             pendingAvatarPurchase = null;
             return renderCharacterShop(
-              "El carrito o el saldo de XP cambió. Revísalo e inténtalo de nuevo.",
+              "The cart or your XP balance changed. Please review it and try again.",
             );
           }
           S.xp -= total;
@@ -5759,8 +5759,8 @@ ${S.mode === "team" ? `<div class="menu-section menu-room"><div class="row"><b>R
           save();
           return renderCharacterShop(
             cartItems.length === 1
-              ? "Personaje añadido a tu colección. Puedes equiparlo desde Hero."
-              : `${cartItems.length} personajes añadidos a tu colección. Puedes equiparlos desde Hero.`,
+              ? "Character added to your collection. You can equip it from Hero."
+              : `${cartItems.length} characters added to your collection. You can equip them from Hero.`,
           );
         } else if (k === "av") {
           if (avatarUnlocked(v)) S.av = v;

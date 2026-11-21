@@ -10,19 +10,22 @@
 <style>
 :root{
   --ink:#0b0a2a; --cyan:#27e3ff; --sun:#ff8a2a; --gold:#f4c542; --wood2:#4a2a0d; --text:#f3f1ff;
-  --bw:clamp(180px,min(94vw,100dvh - 390px),480px);
+  --bw:clamp(180px,min(94vw,480px),480px);
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%}
+html,body{margin:0;min-height:100%}
 body{
   background:radial-gradient(ellipse at 50% 0%,#3a2f9a 0%,var(--ink) 65%);
-  color:var(--text);font-family:'Exo 2',system-ui,sans-serif;overflow:hidden;
+  color:var(--text);font-family:'Exo 2',system-ui,sans-serif;overflow-x:hidden;overflow-y:auto;
   -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none
 }
 #app{
-  position:relative;height:100dvh;width:100%;max-width:520px;margin:0 auto;
+  position:relative;min-height:100dvh;width:100%;max-width:520px;margin:0 auto;
   padding:calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 12px) calc(env(safe-area-inset-bottom) + 10px) calc(env(safe-area-inset-left) + 12px);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;isolation:isolate
+}
+@media (max-width:700px){
+  :root{--bw:clamp(170px,min(94vw,36dvh),360px)}
 }
 #app::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;filter:blur(16px);opacity:.75;
   background:radial-gradient(ellipse at 30% 44%,rgba(39,227,255,.3),transparent 34%),radial-gradient(ellipse at 74% 58%,rgba(255,138,42,.24),transparent 32%),radial-gradient(ellipse at 50% 12%,rgba(216,139,255,.18),transparent 38%);background-size:120% 120%;

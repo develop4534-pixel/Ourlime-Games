@@ -866,6 +866,52 @@ a {
     font-size: 11px;
 }
 
+.whatsapp-float {
+    position: fixed;
+    z-index: 10;
+    right: max(20px, env(safe-area-inset-right));
+    bottom: max(20px, env(safe-area-inset-bottom));
+    display: grid;
+    width: 58px;
+    height: 58px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, .8);
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--cyan), #248e9b 48%, var(--pink));
+    color: #fff;
+    box-shadow: 0 0 12px rgba(64, 224, 208, .85), 0 0 30px rgba(240, 106, 200, .55);
+    transition: transform .18s ease, box-shadow .18s ease;
+    animation: whatsapp-neon-float 2.4s ease-in-out infinite;
+}
+
+@keyframes whatsapp-neon-float {
+    0%, 100% {
+        transform: translateY(0);
+        box-shadow: 0 0 12px rgba(64, 224, 208, .9), 0 0 30px rgba(240, 106, 200, .55);
+    }
+    50% {
+        transform: translateY(-6px);
+        box-shadow: 0 0 18px rgba(240, 106, 200, 1), 0 0 40px rgba(64, 224, 208, .75);
+    }
+}
+
+.whatsapp-float svg {
+    width: 31px;
+    height: 31px;
+    fill: currentColor;
+}
+
+.whatsapp-float:hover {
+    animation: none;
+    transform: translateY(-3px);
+    box-shadow: 0 0 16px rgba(64, 224, 208, 1), 0 0 38px rgba(240, 106, 200, .8);
+}
+
+.whatsapp-float:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 4px;
+}
+
 @media (max-width: 900px) {
     .library {
         position: static;
@@ -970,6 +1016,15 @@ a {
         height: clamp(110px, 25vw, 170px);
     }
 
+}
+
+@media (max-width: 420px) {
+    .whatsapp-float {
+        right: max(14px, env(safe-area-inset-right));
+        bottom: max(14px, env(safe-area-inset-bottom));
+        width: 54px;
+        height: 54px;
+    }
 }
 
 @media (max-width: 420px) {

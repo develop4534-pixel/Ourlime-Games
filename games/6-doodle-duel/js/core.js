@@ -390,7 +390,7 @@
       character: intIn(o.character, 0, 1, 0), nickA: intIn(o.nickA, 0, NICK_A.length - 1, 0), nickB: intIn(o.nickB, 0, NICK_B.length - 1, 0),
       rounds: [4, 6, 8].indexOf(o.rounds) >= 0 ? o.rounds : d.rounds,
       timerMode: intIn(o.timerMode, 0, 2, 1),
-      lang: o.lang === 'en' || o.lang === 'es' ? o.lang : '',
+      lang: 'en',
       uid: typeof o.uid === 'string' && /^[a-f0-9]{16}$/.test(o.uid) ? o.uid : '',
       stats: {
         games: intIn(st.games, 0, 1e7, 0), best: intIn(st.best, 0, 1e6, 0),
