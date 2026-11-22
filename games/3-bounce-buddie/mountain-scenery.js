@@ -67,11 +67,11 @@
       });
       this.drawRidge(ctx, width, height, cameraX, scale, {
         base: 0.79, peak: 0.27, step: 0.34, factor: 0.052, seed: 42,
-        colors: ['#7898b4', '#566f96', '#c4ccda']
+        colors: ['#7898b4', '#566f96', '#dcecf2'], snow: true
       });
       this.drawRidge(ctx, width, height, cameraX, scale, {
         base: 0.92, peak: 0.2, step: 0.48, factor: 0.1, seed: 54,
-        colors: ['#657394', '#465475', '#a8b4c9']
+        colors: ['#657394', '#465475', '#d2e7ee'], snow: true
       });
 
       const haze = ctx.createLinearGradient(0, height * 0.53, 0, height * 0.91);

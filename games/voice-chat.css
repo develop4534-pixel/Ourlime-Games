@@ -1,0 +1,183 @@
+/* Shared multiplayer voice control for Games Ourlime. */
+.ourlime-voice {
+    all: initial;
+    position: fixed !important;
+    z-index: 2147483646 !important;
+    right: max(14px, env(safe-area-inset-right)) !important;
+    bottom: max(78px, env(safe-area-inset-bottom)) !important;
+    display: flex !important;
+    width: 62px !important;
+    height: 62px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 2px solid rgba(241, 245, 255, .38) !important;
+    border-radius: 50% !important;
+    background: linear-gradient(145deg, #252c3f, #151827) !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .42), inset 0 1px rgba(255, 255, 255, .08) !important;
+    color: #fff !important;
+    cursor: pointer !important;
+    font: 700 10px/1 Arial, sans-serif !important;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ourlime-voice[hidden],
+.ourlime-voice-panel[hidden] {
+    display: none !important;
+}
+
+.ourlime-voice:hover,
+.ourlime-voice:focus-visible {
+    border-color: #45e3cf !important;
+    outline: 2px solid #45e3cf !important;
+    outline-offset: 3px !important;
+}
+
+.ourlime-voice--active {
+    border-color: #45e3cf !important;
+    background: linear-gradient(145deg, #38bda9, #167868) !important;
+    box-shadow: 0 0 0 5px rgba(69, 227, 207, .12), 0 12px 32px rgba(20, 170, 150, .34) !important;
+}
+
+.ourlime-voice__icon {
+    display: block;
+    width: 27px;
+    height: 27px;
+    fill: currentColor;
+}
+
+.ourlime-voice__badge {
+    position: absolute !important;
+    top: -4px !important;
+    right: -5px !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 2px solid #171a27 !important;
+    border-radius: 11px !important;
+    background: #45e3cf !important;
+    color: #071317 !important;
+    display: none !important;
+    font-size: 10px !important;
+}
+
+.ourlime-voice__badge:not([hidden]) {
+    display: flex !important;
+}
+
+.ourlime-voice-panel {
+    all: initial;
+    position: fixed !important;
+    z-index: 2147483645 !important;
+    right: max(14px, env(safe-area-inset-right)) !important;
+    bottom: max(150px, calc(env(safe-area-inset-bottom) + 72px)) !important;
+    width: min(278px, calc(100vw - 28px)) !important;
+    padding: 13px !important;
+    border: 1px solid rgba(69, 227, 207, .38) !important;
+    border-radius: 16px !important;
+    background: rgba(18, 21, 34, .96) !important;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, .48) !important;
+    color: #f7f8ff !important;
+    font: 600 12px/1.35 Arial, sans-serif !important;
+    backdrop-filter: blur(12px);
+}
+
+.ourlime-voice-panel[hidden] {
+    display: none !important;
+}
+
+.ourlime-voice-panel__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 9px;
+}
+
+.ourlime-voice-panel__title {
+    color: #45e3cf;
+    font-size: 12px;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+}
+
+.ourlime-voice-panel__status {
+    color: #aeb5c9;
+    font-size: 10px;
+}
+
+.ourlime-voice-participants {
+    display: grid;
+    gap: 7px;
+}
+
+.ourlime-voice-person {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) 30px;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 5px 8px 5px 5px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .055);
+}
+
+.ourlime-voice-avatar {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: 50%;
+    background: #303750;
+    color: #fff;
+    font-weight: 800;
+}
+
+.ourlime-voice-person--speaking .ourlime-voice-avatar {
+    background: #36bda9;
+    box-shadow: 0 0 0 3px rgba(69, 227, 207, .18);
+}
+
+.ourlime-voice-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ourlime-voice-wave {
+    display: flex;
+    height: 22px;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    opacity: .55;
+}
+
+.ourlime-voice-person--speaking .ourlime-voice-wave {
+    opacity: 1;
+}
+
+.ourlime-voice-wave i {
+    width: 3px;
+    height: 5px;
+    border-radius: 3px;
+    background: #45e3cf;
+    transform-origin: center;
+}
+
+.ourlime-voice-person--speaking .ourlime-voice-wave i:nth-child(1) { animation: ourlime-wave .55s ease-in-out infinite alternate; }
+.ourlime-voice-person--speaking .ourlime-voice-wave i:nth-child(2) { animation: ourlime-wave .38s ease-in-out .08s infinite alternate; }
+.ourlime-voice-person--speaking .ourlime-voice-wave i:nth-child(3) { animation: ourlime-wave .48s ease-in-out .14s infinite alternate; }
+.ourlime-voice-person--speaking .ourlime-voice-wave i:nth-child(4) { animation: ourlime-wave .34s ease-in-out .04s infinite alternate; }
+
+@keyframes ourlime-wave {
+    from { transform: scaleY(.35); }
+    to { transform: scaleY(2.8); }
+}
+
+@media (max-width: 520px) {
+    .ourlime-voice {
+        width: 56px !important;
+        height: 56px !important;
+        bottom: max(68px, env(safe-area-inset-bottom)) !important;
+    }
+}

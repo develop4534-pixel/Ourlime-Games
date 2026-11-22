@@ -625,6 +625,16 @@ function createServer(options = {}) {
       case 'ping':
         send(client, { t: 'pong' });
         break;
+      case 'voice-signal':
+        if (message.signal && typeof message.signal === 'object') {
+          broadcast(room, {
+            t: 'voice-signal',
+            from: player.id,
+            name: typeof message.name === 'string' ? message.name.slice(0, 20) : player.n,
+            signal: message.signal
+          }, player.id);
+        }
+        break;
       case 'ready':
         if (room.phase === 'lobby' && player.id !== room.host && typeof message.v === 'boolean') {
           player.ready = message.v;

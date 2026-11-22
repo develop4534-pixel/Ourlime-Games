@@ -192,4 +192,5 @@ ov.addEventListener('input',e=>{const k=e.target.dataset.s;if(k){SET[k]=+e.targe
 ov.addEventListener('change',e=>{const k=e.target.dataset.c;if(k){SET[k]=e.target.checked;save();syncMusic()}});
 addEventListener('error',e=>{if(G.st!=='ERROR')fail(e.error||e.message)});addEventListener('unhandledrejection',e=>console.warn(e.reason));
 try{load();G.L=genLevel(0);G.paths=G.L.pairs.map(()=>[]);go('MAIN_MENU');resize();show('menu');raf=requestAnimationFrame(frame)}catch(e){fail(e)}
-</script><script src="../hub-return.js" defer></script></body></html>
+</script><script src="../hub-return.js" defer></script>
+<script src="../voice-chat.js?v=20261121-2" defer></script></body></html>

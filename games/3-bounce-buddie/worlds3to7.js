@@ -3,35 +3,35 @@
 
   const THEMES = {
     3: {
-      name: 'Volcan Infernal',
+      name: 'Infernal Volcano',
       colors: ['#260d24', '#a42d26', '#ff8b38'],
       platform: '#74382c',
       accent: '#ffac35',
       hazards: ['fire', 'rock', 'roller', 'thorns', 'axe', 'cutter']
     },
     4: {
-      name: 'Bosque Maldito',
+      name: 'Haunted Forest',
       colors: ['#071d20', '#17543e', '#81ad46'],
       platform: '#346c4a',
       accent: '#c4e86d',
       hazards: ['swamp', 'thorns', 'tree', 'rock', 'axe', 'fire']
     },
     5: {
-      name: 'Fabrica de la Muerte',
+      name: 'Death Factory',
       colors: ['#1b202b', '#444454', '#7b7882'],
       platform: '#55516c',
       accent: '#ffbd42',
       hazards: ['roller', 'axe', 'cutter', 'crusher', 'fire']
     },
     6: {
-      name: 'Montana Congelada',
+      name: 'Frozen Mountain',
       colors: ['#092844', '#2775a4', '#b9edff'],
       platform: '#438caf',
       accent: '#e1fbff',
       hazards: ['icicle', 'rock', 'thorns', 'ice', 'roller']
     },
     7: {
-      name: 'Dimension del Caos',
+      name: 'Chaos Dimension',
       colors: ['#150b35', '#53218b', '#b84bd4'],
       platform: '#7136a1',
       accent: '#ff62e7',
@@ -43,6 +43,250 @@
     let value = Math.sin(seed * 127.1) * 43758.5453;
     return value - Math.floor(value);
   };
+
+  function drawExtremeWorldBackdrop(ctx, view, number, time) {
+    const theme = THEMES[number];
+    if (!theme) return;
+
+    const { width, height, scale, cameraX } = view;
+    const unit = Math.max(0.5, scale || 1);
+    ctx.save();
+
+    const sky = ctx.createLinearGradient(0, 0, 0, height);
+    sky.addColorStop(0, theme.colors[0]);
+    sky.addColorStop(0.56, theme.colors[1]);
+    sky.addColorStop(1, theme.colors[2]);
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, width, height);
+
+    const glowColors = {
+      3: 'rgba(255,136,51,.34)',
+      4: 'rgba(147,204,120,.2)',
+      5: 'rgba(255,185,66,.22)',
+      6: 'rgba(174,235,255,.32)',
+      7: 'rgba(255,98,231,.28)'
+    };
+    const glowX = width * (0.72 + Math.sin(time * 0.12) * 0.04);
+    const glow = ctx.createRadialGradient(glowX, height * 0.22, 0, glowX, height * 0.22, width * 0.55);
+    glow.addColorStop(0, glowColors[number]);
+    glow.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, width, height * 0.8);
+
+    const ridgeColors = {
+      3: [['#3a1a39', '#572b3c'], ['#552638', '#843c2e'], ['#69382e', '#9c4a2d']],
+      4: [['#0c282d', '#163d38'], ['#123b37', '#20513c'], ['#183c2d', '#315a37']],
+      5: [['#292e3a', '#353745'], ['#353947', '#46434b'], ['#444550', '#57505a']],
+      6: [['#245575', '#3e7690'], ['#286786', '#478ba5'], ['#387c98', '#5a9cb2']],
+      7: [['#241448', '#41205e'], ['#3b1d62', '#632c87'], ['#542879', '#8539a0']]
+    }[number];
+
+    const drawRidge = (baseRatio, peakRatio, colors, alpha, factor, snow) => {
+      const segment = Math.max(190 * unit, width * 0.38);
+      const offset = cameraX * unit * factor;
+      const firstIndex = Math.floor(offset / segment);
+      const start = -(offset - firstIndex * segment) - segment;
+      const count = Math.ceil(width / segment) + 3;
+      const base = height * baseRatio;
+      const peaks = [];
+
+      ctx.beginPath();
+      ctx.moveTo(start, height);
+      ctx.lineTo(start, base);
+      for (let i = 0; i < count; i++) {
+        const x = start + i * segment;
+        const seed = firstIndex + i + number * 41;
+        const center = x + segment * (0.34 + random(seed + 11) * 0.32);
+        const peakHeight = height * peakRatio * (0.72 + random(seed + 19) * 0.24);
+        const peakY = base - peakHeight;
+        ctx.lineTo(center - segment * 0.2, base - peakHeight * 0.22);
+        ctx.lineTo(center - segment * 0.075, peakY + peakHeight * 0.24);
+        ctx.lineTo(center, peakY);
+        ctx.lineTo(center + segment * 0.085, peakY + peakHeight * 0.2);
+        ctx.lineTo(center + segment * 0.22, base - peakHeight * 0.18);
+        ctx.lineTo(x + segment, base);
+        peaks.push({ x: center, y: peakY, height: peakHeight });
+      }
+      ctx.lineTo(start + count * segment, height);
+      ctx.closePath();
+
+      const ridgeGradient = ctx.createLinearGradient(0, base - height * peakRatio, 0, height);
+      ridgeGradient.addColorStop(0, colors[0]);
+      ridgeGradient.addColorStop(1, colors[1]);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = ridgeGradient;
+      ctx.fill();
+
+      if (snow) {
+        ctx.globalAlpha = Math.min(1, alpha + 0.28);
+        ctx.fillStyle = '#e9fbff';
+        for (const peak of peaks) {
+          ctx.beginPath();
+          ctx.moveTo(peak.x, peak.y);
+          ctx.lineTo(peak.x - segment * 0.065, peak.y + peak.height * 0.16);
+          ctx.lineTo(peak.x - segment * 0.012, peak.y + peak.height * 0.12);
+          ctx.lineTo(peak.x + segment * 0.055, peak.y + peak.height * 0.19);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1;
+    };
+
+    drawRidge(0.64, 0.24, ridgeColors[0], 0.9, 0.022, number === 6);
+    drawRidge(0.76, 0.2, ridgeColors[1], 0.72, 0.065, number === 6);
+    drawRidge(0.9, 0.13, ridgeColors[2], 0.55, 0.14, number === 6);
+
+    if (number === 3) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,177,70,.7)';
+      ctx.lineWidth = Math.max(2, height * 0.006);
+      ctx.shadowColor = '#ff642d';
+      ctx.shadowBlur = 12 * unit;
+      for (let i = 0; i < 4; i++) {
+        const x = width * (0.16 + i * 0.24) - cameraX * unit * 0.025;
+        ctx.beginPath();
+        ctx.moveTo(x, height * 0.69);
+        ctx.quadraticCurveTo(x + width * 0.035, height * 0.77, x + width * 0.01, height * 0.88);
+        ctx.stroke();
+      }
+      ctx.restore();
+    } else if (number === 4) {
+      const spacing = Math.max(34 * unit, 20);
+      const offset = cameraX * unit * 0.13;
+      const first = Math.floor(offset / spacing) - 1;
+      const count = Math.ceil(width / spacing) + 3;
+      for (let i = 0; i < count; i++) {
+        const index = first + i;
+        const depth = random(index + 180);
+        const x = index * spacing - offset;
+        const treeHeight = height * (0.075 + depth * 0.09);
+        const baseY = height * (0.83 + depth * 0.055);
+        ctx.globalAlpha = 0.38 + depth * 0.34;
+        ctx.fillStyle = depth > 0.5 ? '#102e2a' : '#173a31';
+        ctx.fillRect(x - 2 * unit, baseY - treeHeight * 0.18, 4 * unit, treeHeight * 0.2);
+        for (let tier = 0; tier < 3; tier++) {
+          const tierY = baseY - treeHeight * (0.25 + tier * 0.24);
+          const tierWidth = treeHeight * (0.42 - tier * 0.08);
+          ctx.beginPath();
+          ctx.moveTo(x, tierY - treeHeight * 0.34);
+          ctx.lineTo(x - tierWidth, tierY + treeHeight * 0.2);
+          ctx.lineTo(x + tierWidth, tierY + treeHeight * 0.2);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1;
+      const mist = ctx.createLinearGradient(0, height * 0.65, 0, height * 0.87);
+      mist.addColorStop(0, 'rgba(188,226,174,0)');
+      mist.addColorStop(0.55, 'rgba(188,226,174,.22)');
+      mist.addColorStop(1, 'rgba(188,226,174,0)');
+      ctx.fillStyle = mist;
+      ctx.fillRect(0, height * 0.63, width, height * 0.25);
+    } else if (number === 5) {
+      const spacing = Math.max(120 * unit, width * 0.22);
+      const offset = cameraX * unit * 0.07;
+      const first = Math.floor(offset / spacing) - 1;
+      const count = Math.ceil(width / spacing) + 3;
+      for (let i = 0; i < count; i++) {
+        const index = first + i;
+        const x = index * spacing - offset;
+        const buildingWidth = spacing * (0.56 + random(index + 92) * 0.24);
+        const buildingHeight = height * (0.12 + random(index + 113) * 0.14);
+        const top = height * 0.72 - buildingHeight;
+        ctx.fillStyle = '#272d3a';
+        ctx.fillRect(x, top, buildingWidth, buildingHeight);
+        ctx.fillStyle = '#3a3b46';
+        ctx.fillRect(x + buildingWidth * 0.12, top - 8 * unit, buildingWidth * 0.76, 8 * unit);
+        ctx.fillStyle = '#202632';
+        ctx.fillRect(x + buildingWidth * 0.2, top - buildingHeight * 0.34, 9 * unit, buildingHeight * 0.34);
+        ctx.fillStyle = 'rgba(255,189,66,.54)';
+        const rows = Math.max(2, Math.floor(buildingHeight / (18 * unit)));
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < 3; col++) {
+            ctx.fillRect(
+              x + buildingWidth * (0.18 + col * 0.25),
+              top + 8 * unit + row * 14 * unit,
+              4 * unit,
+              6 * unit
+            );
+          }
+        }
+      }
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,189,66,.24)';
+      ctx.lineWidth = Math.max(2, 4 * unit);
+      ctx.beginPath();
+      ctx.moveTo(0, height * 0.78);
+      ctx.lineTo(width, height * 0.78);
+      ctx.stroke();
+      ctx.restore();
+    } else if (number === 6) {
+      const auroraColors = ['rgba(119,255,226,.22)', 'rgba(129,206,255,.2)', 'rgba(198,180,255,.16)'];
+      ctx.save();
+      ctx.lineWidth = Math.max(3, height * 0.018);
+      for (let i = 0; i < auroraColors.length; i++) {
+        const wave = Math.sin(time * 0.35 + i) * height * 0.025;
+        ctx.strokeStyle = auroraColors[i];
+        ctx.beginPath();
+        ctx.moveTo(-width * 0.1, height * (0.19 + i * 0.075) + wave);
+        ctx.bezierCurveTo(
+          width * 0.28, height * (0.1 + i * 0.075) - wave,
+          width * 0.62, height * (0.31 + i * 0.06) + wave,
+          width * 1.1, height * (0.16 + i * 0.075) - wave
+        );
+        ctx.stroke();
+      }
+      ctx.restore();
+      for (let i = 0; i < 18; i++) {
+        const x = ((i * 83 - cameraX * unit * 0.035 + time * (8 + i % 4) * unit) % width + width) % width;
+        const y = ((i * 47 + time * (12 + i % 3) * unit) % (height * 0.68));
+        ctx.fillStyle = 'rgba(236,251,255,.72)';
+        ctx.beginPath();
+        ctx.arc(x, y, (1 + i % 2) * unit, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (number === 7) {
+      ctx.save();
+      ctx.translate(width * 0.72, height * 0.34);
+      ctx.rotate(time * 0.08);
+      ctx.strokeStyle = 'rgba(255,98,231,.42)';
+      ctx.lineWidth = Math.max(3, 5 * unit);
+      ctx.shadowColor = '#ff62e7';
+      ctx.shadowBlur = 18 * unit;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, width * 0.18, height * 0.1, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(117,244,255,.4)';
+      ctx.lineWidth = Math.max(2, 3 * unit);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, width * 0.14, height * 0.07, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      for (let i = 0; i < 9; i++) {
+        const x = ((i * 131 - cameraX * unit * 0.08) % (width + 120 * unit) + width + 120 * unit) % (width + 120 * unit) - 60 * unit;
+        const y = height * (0.18 + random(i + 77) * 0.56);
+        const size = (9 + random(i + 33) * 18) * unit;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(time * (i % 2 ? 0.18 : -0.14) + i);
+        ctx.fillStyle = i % 2 ? 'rgba(103,218,255,.24)' : 'rgba(255,98,231,.22)';
+        ctx.strokeStyle = i % 2 ? 'rgba(169,240,255,.38)' : 'rgba(255,175,243,.38)';
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size * 0.62, -size * 0.12);
+        ctx.lineTo(size * 0.38, size);
+        ctx.lineTo(-size * 0.62, size * 0.36);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    ctx.restore();
+  }
 
   class ExtremeWorld {
     constructor(number) {
@@ -235,70 +479,7 @@
       const { width, height, scale, cameraX, cameraY } = view;
       const xOnScreen = x => (x - cameraX) * scale + width / 2;
       const yOnScreen = y => (y - cameraY) * scale + height * 0.58;
-      const gradient = ctx.createLinearGradient(0, 0, 0, height);
-      gradient.addColorStop(0, this.config.colors[0]);
-      gradient.addColorStop(0.58, this.config.colors[1]);
-      gradient.addColorStop(1, this.config.colors[2]);
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, width, height);
-
-      const hazeX = width * (0.66 + Math.sin(this.time * 0.12) * 0.05);
-      const haze = ctx.createRadialGradient(hazeX, height * 0.22, 0, hazeX, height * 0.22, width * 0.52);
-      haze.addColorStop(0, this.number === 6 ? 'rgba(173,235,255,.22)' : 'rgba(255,231,173,.14)');
-      haze.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = haze;
-      ctx.fillRect(0, 0, width, height);
-
-      const drawRidge = (baseY, peak, color, alpha, factor) => {
-        const segment = Math.max(220 * scale, width * 0.42);
-        const offset = ((cameraX * scale * factor % segment) + segment) % segment;
-        const start = -segment - offset;
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.moveTo(start, height);
-        ctx.lineTo(start, baseY);
-        for (let x = start; x < width + segment; x += segment) {
-          const index = Math.floor((x + cameraX * scale * factor) / segment);
-          const variation = 0.62 + ((index * 7 % 7 + 7) % 7) * 0.055;
-          ctx.quadraticCurveTo(
-            x + segment * 0.52,
-            baseY - peak * variation,
-            x + segment,
-            baseY + Math.sin(index * 2.1) * peak * 0.04
-          );
-        }
-        ctx.lineTo(width + segment, height);
-        ctx.closePath();
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      };
-      drawRidge(height * 0.62, height * 0.16, this.config.colors[0], 0.82, 0.025);
-      drawRidge(height * 0.74, height * 0.19, this.config.colors[1], 0.5, 0.075);
-      drawRidge(height * 0.86, height * 0.16, this.config.colors[2], 0.2, 0.16);
-
-      for (const decoration of this.decorations) {
-        const px = ((decoration.x - cameraX * 0.18) * scale) % (width + 200 * scale);
-        const x = px < -100 * scale ? px + width + 200 * scale : px;
-        const y = decoration.y * scale;
-        ctx.globalAlpha = 0.18;
-        ctx.fillStyle = this.config.accent;
-        ctx.beginPath();
-        ctx.arc(x, y, decoration.size * scale, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-
-      for (let i = 0; i < 30; i++) {
-        const x = ((i * 97 - this.time * 50 - cameraX * 0.08) * scale % width + width) % width;
-        const y = ((i * 53 + this.time * 70) * scale) % height;
-        ctx.globalAlpha = 0.45;
-        ctx.fillStyle = this.number === 6 ? '#fff' : this.config.accent;
-        ctx.beginPath();
-        ctx.arc(x, y, 2 * scale, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
+      drawExtremeWorldBackdrop(ctx, view, this.number, this.time);
 
       const drawPlatform = platform => {
         const x = xOnScreen(platform.x);
@@ -454,4 +635,5 @@
   window.World7 = class World7 extends ExtremeWorld {
     constructor() { super(7); }
   };
+  window.drawExtremeWorldBackdrop = drawExtremeWorldBackdrop;
 })();
