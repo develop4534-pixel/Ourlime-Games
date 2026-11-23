@@ -48,7 +48,40 @@
   }
   function promptIcon(id, cls) {
     var d = root.DD && root.DD.ICONS[id];
-    return '<svg class="pic ' + (cls || '') + '" viewBox="0 0 100 100" aria-hidden="true" focusable="false">' + (d || '') + '</svg>';
+    return '<svg class="pic ' + (cls || '') + '" viewBox="4 4 92 92" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">' + (d || '') + '</svg>';
+  }
+
+  function normalizePromptIcons() {
+    if (!root.document) return;
+    var icons = root.document.querySelectorAll('svg.pic');
+    icons.forEach(function (svg) {
+      if (svg.dataset.centered === '1') return;
+      try {
+        var box = svg.getBBox();
+        if (!Number.isFinite(box.width) || !Number.isFinite(box.height) || box.width < 1 || box.height < 1) return;
+        var cx = box.x + box.width / 2;
+        var cy = box.y + box.height / 2;
+        var side = Math.max(box.width, box.height) * 1.35;
+        svg.setAttribute('viewBox', (cx - side / 2).toFixed(2) + ' ' + (cy - side / 2).toFixed(2) + ' ' + side.toFixed(2) + ' ' + side.toFixed(2));
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svg.dataset.centered = '1';
+      } catch (_) {}
+    });
+  }
+  if (root.document) {
+    var normalizeFrame = 0;
+    var scheduleNormalization = function () {
+      if (normalizeFrame) return;
+      normalizeFrame = root.requestAnimationFrame(function () {
+        normalizeFrame = 0;
+        normalizePromptIcons();
+      });
+    };
+    if (typeof root.MutationObserver !== 'undefined') {
+      new root.MutationObserver(scheduleNormalization).observe(root.document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden'] });
+    }
+    root.addEventListener('DOMContentLoaded', scheduleNormalization);
+    scheduleNormalization();
   }
 
   /* ───────── the two original doodle characters ─────────

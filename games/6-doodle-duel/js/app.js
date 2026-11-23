@@ -561,7 +561,7 @@
         });
         pad.dirty = true; pad.render(); updateStrokes();
       }
-      cover('<div>' + A.ui('brush') + '<div>' + t('you_draw') + '</div></div>', 900);
+      cover('<div><span class="pic-wrap">' + A.promptIcon(m.prompt) + '</span>' + A.ui('brush') + '<div>' + t('you_draw') + '</div></div>', 900);
     } else if (!iDraw && Array.isArray(m.choices) && m.choices.length >= 2 && m.choices.length <= 6 && m.choices.every(function (id) { return !!D.ICONS[id]; })) {
       stage('guess', null, m.choices, mpPick);
       $('#reacts').hidden = false; buildReacts();

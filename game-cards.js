@@ -113,7 +113,7 @@ document.addEventListener("pointerdown", (event) => {
     });
 });
 
-let lobbyMusicStarted = false;
+let lobbyMusicEnabled = false;
 let lobbyAudioContext = null;
 let lobbyBassAnalyser = null;
 let lobbyBassData = null;
@@ -131,10 +131,9 @@ let lobbyRecentBassAverage = 0;
 let lobbyBeatPhase = 0;
 let lobbyMusicSetupPromise = null;
 const lobbyCards = Array.from(document.querySelectorAll(".game-card"));
-const lobbyFeatured = document.querySelector(".featured");
 
 const resumeLobbyAudio = () => {
-    if (!lobbyAudioContext || lobbyAudioContext.state !== "suspended") return;
+    if (!lobbyAudioContext || lobbyAudioContext.state === "running" || lobbyAudioContext.state === "closed") return;
     lobbyAudioContext.resume().catch((error) => {
         if (error.name !== "NotAllowedError") {
             console.error("Lobby music could not resume.", error);
@@ -145,6 +144,8 @@ const resumeLobbyAudio = () => {
 const setupLobbyBassEffect = async () => {
     resumeLobbyAudio();
     if (lobbyBassAnalyser && lobbyMusicSource) {
+        lobbyMusicGain.gain.cancelScheduledValues(lobbyAudioContext.currentTime);
+        lobbyMusicGain.gain.setTargetAtTime(0.38, lobbyAudioContext.currentTime, 0.08);
         return;
     }
     if (lobbyMusicSetupPromise) return lobbyMusicSetupPromise;
@@ -152,7 +153,7 @@ const setupLobbyBassEffect = async () => {
     lobbyMusicSetupPromise = (async () => {
       try {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) return;
+        if (!AudioContextClass) throw new Error("Web Audio is not supported in this browser.");
         lobbyAudioContext = new AudioContextClass();
         lobbyBassAnalyser = lobbyAudioContext.createAnalyser();
         lobbyBassAnalyser.fftSize = 512;
@@ -184,10 +185,20 @@ const setupLobbyBassEffect = async () => {
         lobbyMusicSource.loop = true;
         lobbyMusicSource.connect(lobbyMusicGain);
         lobbyMusicSource.start(0);
-        lobbyMusicStarted = true;
+        if (!lobbyMusicEnabled) {
+            lobbyMusicGain.gain.setValueAtTime(0.0001, lobbyAudioContext.currentTime);
+        }
+        updateLobbyMusicButton();
       } catch (error) {
         console.error("The Games Ourlime lobby music could not start.", error);
         lobbyBassAnalyser = null;
+        lobbyMusicEnabled = false;
+        const button = document.querySelector("#lobby-music-toggle");
+        if (button) {
+            button.textContent = "♫ Retry music";
+            button.setAttribute("aria-pressed", "false");
+            button.title = "Could not load lobby music. Check your connection and try again.";
+        }
       }
     })();
 
@@ -237,7 +248,7 @@ const animateLobbyBassEffect = () => {
         const average = endBin > startBin ? total / (endBin - startBin) / 255 : 0;
         const tranceAverage = tranceEnd > tranceStart ? tranceTotal / (tranceEnd - tranceStart) / 255 : 0;
         lobbyRecentBassAverage = lobbyRecentBassAverage * 0.96 + average * 0.04;
-        lobbyAdaptiveBassThreshold = Math.max(0.22, lobbyRecentBassAverage + 0.10);
+        lobbyAdaptiveBassThreshold = Math.min(0.72, Math.max(0.22, lobbyRecentBassAverage + 0.10));
         energy = average > lobbyAdaptiveBassThreshold
             ? Math.min(1, (average - lobbyAdaptiveBassThreshold) / 0.38)
             : 0;
@@ -250,7 +261,7 @@ const animateLobbyBassEffect = () => {
     lobbyLastEnergy = lobbyLastEnergy * 0.78 + energy * 0.22;
     const displayEnergy = Math.max(energy, lobbyLastEnergy);
     const now = performance.now();
-    const strongBassHit = energy > 0.48 && now - lobbyLastStrongHit > 260;
+    const strongBassHit = bassHit && energy > 0.48 && now - lobbyLastStrongHit > 260;
 
     if (strongBassHit) {
         lobbyBeatPulse = 1;
@@ -269,14 +280,12 @@ const animateLobbyBassEffect = () => {
         lobbyCards.forEach((card, index) => {
             window.setTimeout(() => createLobbyBassWave(card, true), index * 18);
         });
-        retriggerLobbyVibration(lobbyFeatured, "is-bass-hit", 180);
         lobbyCards.forEach((card, index) => {
             window.setTimeout(() => retriggerLobbyVibration(card, "is-bass-hit", 180), index * 12);
         });
     } else if (tranceEnergy > 0.32 && now - lobbyBeatTime > 420) {
         const card = lobbyCards[lobbyBeatCount % lobbyCards.length];
         if (card) createLobbyBassWave(card, false);
-        retriggerLobbyVibration(lobbyFeatured, "is-trance-hit", 260);
         retriggerLobbyVibration(card, "is-trance-hit", 260);
         lobbyBeatTime = now;
         lobbyBeatCount++;
@@ -310,37 +319,41 @@ const animateLobbyBassEffect = () => {
         card.style.setProperty("--bass-rotate", `${(Math.sin(beatTime * 0.71 + index) * vibration * 0.24).toFixed(2)}deg`);
         card.style.setProperty("--trance-energy", tranceEnergy.toFixed(3));
     });
-    if (lobbyFeatured) {
-        const featuredPulse = lobbyBeatPulse > 0.02
-            ? lobbyBeatPulse * 1.45
-            : displayEnergy * 0.42;
-        lobbyFeatured.style.setProperty("--featured-x", `${(Math.sin(lobbyBeatPhase * 1.18) * featuredPulse).toFixed(2)}px`);
-        lobbyFeatured.style.setProperty("--featured-y", `${(Math.cos(lobbyBeatPhase * 1.31) * featuredPulse * 0.48).toFixed(2)}px`);
-        lobbyFeatured.style.setProperty("--featured-rotate", `${(Math.sin(lobbyBeatPhase * 0.83) * featuredPulse * 0.18).toFixed(2)}deg`);
-        lobbyFeatured.style.setProperty("--featured-energy", displayEnergy.toFixed(3));
-        lobbyFeatured.style.setProperty("--featured-brightness", (1 + displayEnergy * 0.10).toFixed(3));
-    }
     document.body.classList.toggle("lobby-trance", tranceEnergy > 0.32);
 
     window.requestAnimationFrame(animateLobbyBassEffect);
 };
 
-const playLobbyMusic = () => {
-    resumeLobbyAudio();
-    if (lobbyMusicStarted && lobbyAudioContext) {
+const startLobbyMusic = () => {
+    lobbyMusicEnabled = true;
+    updateLobbyMusicButton();
+    setupLobbyBassEffect();
+};
+
+const updateLobbyMusicButton = () => {
+    const button = document.querySelector("#lobby-music-toggle");
+    if (!button) return;
+    button.textContent = lobbyMusicEnabled ? "♫ Mute music" : "♫ Enable music";
+    button.setAttribute("aria-pressed", String(lobbyMusicEnabled));
+};
+
+document.querySelector("#lobby-music-toggle")?.addEventListener("click", () => {
+    if (lobbyMusicEnabled) {
+        if (lobbyAudioContext && lobbyAudioContext.state !== "running" && lobbyAudioContext.state !== "closed") {
+            resumeLobbyAudio();
+            setupLobbyBassEffect();
+            return;
+        }
+        lobbyMusicEnabled = false;
+        if (lobbyMusicGain && lobbyAudioContext) {
+            lobbyMusicGain.gain.cancelScheduledValues(lobbyAudioContext.currentTime);
+            lobbyMusicGain.gain.setTargetAtTime(0.0001, lobbyAudioContext.currentTime, 0.04);
+        }
+        updateLobbyMusicButton();
         return;
     }
-    setupLobbyBassEffect();
-};
-
-const startLobbyMusic = () => {
-    setupLobbyBassEffect();
-};
-
-document.addEventListener("pointerdown", startLobbyMusic);
-document.addEventListener("touchstart", startLobbyMusic, { passive: true });
-document.addEventListener("keydown", startLobbyMusic);
-setupLobbyBassEffect();
+    startLobbyMusic();
+});
 
 document.querySelectorAll(".primary-button, .game-card__play").forEach((link) => {
     link.addEventListener("click", () => {
@@ -349,7 +362,6 @@ document.querySelectorAll(".primary-button, .game-card__play").forEach((link) =>
             lobbyMusicSource.disconnect();
             lobbyMusicSource = null;
         }
-        lobbyMusicStarted = false;
         sessionStorage.setItem("ourlimeResumeLobbyMusic", "true");
     });
 });
@@ -357,9 +369,8 @@ document.querySelectorAll(".primary-button, .game-card__play").forEach((link) =>
 window.addEventListener("pageshow", () => {
     if (sessionStorage.getItem("ourlimeResumeLobbyMusic") === "true") {
         sessionStorage.removeItem("ourlimeResumeLobbyMusic");
-        startLobbyMusic();
-    } else {
-        playLobbyMusic();
+        lobbyMusicEnabled = false;
+        updateLobbyMusicButton();
     }
 });
 document.addEventListener("visibilitychange", () => {

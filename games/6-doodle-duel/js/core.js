@@ -246,10 +246,96 @@
   // Drawer: +20 for submitting a drawing (>=1 stroke), +60 if identified, +10 if 3+ colours (cap).
   function scoreDraw(o) {
     if (!o || !o.strokes || o.strokes < 1) return 0;
+    if (o.recognizable === false) return 0;
+    if (o.recognizable == null && o.quality != null && o.quality < 0.88) return 0;
     var s = CONFIG.SCORE_DRAW_COMPLETE;
-    if (o.identified) s += CONFIG.SCORE_DRAW_CLEAR;
+    if (o.identified && o.recognizable !== false) s += CONFIG.SCORE_DRAW_CLEAR;
     if (o.colors >= 3) s += CONFIG.SCORE_CREATIVE;
     return s;
+  }
+  function samplePolyline(points, step) {
+    var out = [];
+    if (!Array.isArray(points) || points.length === 0) return out;
+    out.push([points[0][0], points[0][1]]);
+    for (var i = 1; i < points.length; i++) {
+      var a = points[i - 1], b = points[i];
+      var dx = b[0] - a[0], dy = b[1] - a[1];
+      var length = Math.sqrt(dx * dx + dy * dy);
+      var parts = Math.max(1, Math.ceil(length / (step || 4)));
+      for (var j = 1; j <= parts; j++) {
+        var t = j / parts;
+        out.push([a[0] + dx * t, a[1] + dy * t]);
+      }
+    }
+    return out;
+  }
+  function drawingQuality(strokes, promptId) {
+    var target = DOODLES[promptId];
+    if (!Array.isArray(target) || target.length === 0 || !Array.isArray(strokes) || strokes.length === 0) return 0;
+    var drawn = [], ink = 0;
+    for (var s = 0; s < strokes.length; s++) {
+      var raw = strokes[s] && strokes[s].p;
+      if (!Array.isArray(raw) || raw.length === 0) continue;
+      var normalized = raw.map(function (p) { return [Number(p[0]) / 10, Number(p[1]) / 10]; });
+      var sampled = samplePolyline(normalized, 4);
+      drawn = drawn.concat(sampled);
+      for (var i = 1; i < normalized.length; i++) {
+        var dx = normalized[i][0] - normalized[i - 1][0];
+        var dy = normalized[i][1] - normalized[i - 1][1];
+        ink += Math.sqrt(dx * dx + dy * dy);
+      }
+    }
+    if (drawn.length === 0 || ink < 12) return 0;
+    var expected = [];
+    for (var t = 0; t < target.length; t++) {
+      expected = expected.concat(samplePolyline(target[t], 4));
+    }
+    if (expected.length === 0) return 0;
+    var radius = 16;
+    function coverage(source, reference) {
+      if (!source.length || !reference.length) return 0;
+      var close = 0;
+      for (var i = 0; i < source.length; i++) {
+        var nearest = Infinity;
+        for (var j = 0; j < reference.length; j++) {
+          var dx = source[i][0] - reference[j][0], dy = source[i][1] - reference[j][1];
+          var d = dx * dx + dy * dy;
+          if (d < nearest) nearest = d;
+          if (nearest < radius * radius) break;
+        }
+        if (nearest <= radius * radius) close++;
+      }
+      return close / source.length;
+    }
+    function meanDistance(source, reference) {
+      if (!source.length || !reference.length) return 100;
+      var total = 0;
+      for (var i = 0; i < source.length; i++) {
+        var nearest = Infinity;
+        for (var j = 0; j < reference.length; j++) {
+          var dx = source[i][0] - reference[j][0], dy = source[i][1] - reference[j][1];
+          var d = dx * dx + dy * dy;
+          if (d < nearest) nearest = d;
+          if (nearest < 1) break;
+        }
+        total += Math.sqrt(nearest);
+      }
+      return total / source.length;
+    }
+    var targetCoverage = coverage(expected, drawn);
+    var drawingCoverage = coverage(drawn, expected);
+    var targetDistance = meanDistance(expected, drawn);
+    var drawingDistance = meanDistance(drawn, expected);
+    var distanceScore = Math.exp(-((targetDistance + drawingDistance) / 2) / 22);
+    var expectedInk = 0;
+    for (var e = 1; e < expected.length; e++) {
+      var ex = expected[e][0] - expected[e - 1][0], ey = expected[e][1] - expected[e - 1][1];
+      expectedInk += Math.sqrt(ex * ex + ey * ey);
+    }
+    if (ink < expectedInk * 0.35 || targetCoverage < 0.62 || drawingCoverage < 0.52) return 0;
+    if (promptId === 'moon' && (targetCoverage < 0.72 || drawingCoverage < 0.68)) return 0;
+    var quality = targetCoverage * 0.38 + drawingCoverage * 0.32 + distanceScore * 0.30;
+    return Math.max(0, Math.min(1, quality));
   }
   // Practice-only rival: transparent heuristic, NOT real recognition.
   function botChance(strokes) {
@@ -258,9 +344,10 @@
     var c = 0.30 + 0.12 * Math.min(n, 4) + Math.min(0.25, ink / 4000);
     return Math.max(0, Math.min(0.92, c));
   }
-  function botGuess(strokes, rng) {
-    var p = botChance(strokes);
-    return { chance: p, correct: (rng || Math.random)() < p };
+  function botGuess(strokes, rng, promptId) {
+    var quality = promptId ? drawingQuality(strokes, promptId) : botChance(strokes);
+    var p = promptId ? quality : botChance(strokes);
+    return { chance: p, correct: promptId ? quality >= 0.88 : (rng || Math.random)() < p };
   }
 
   /* ───────────── practice session (state machine) ───────────── */
@@ -304,8 +391,8 @@
     if (this.state !== 'playing' || !r || r.kind !== 'draw' || r.answered) return null;
     r.answered = true;
     var n = board.count();
-    var bot = n > 0 ? botGuess(board.strokes, rng || this.rng) : { chance: 0, correct: false };
-    r.points = scoreDraw({ strokes: n, identified: bot.correct, colors: board.colorsUsed() });
+    var bot = n > 0 ? botGuess(board.strokes, rng || this.rng, r.promptId) : { chance: 0, correct: false };
+    r.points = scoreDraw({ strokes: n, identified: bot.correct, colors: board.colorsUsed(), quality: bot.chance, recognizable: bot.correct });
     return this._resolve({ result: n === 0 ? 'empty' : bot.correct ? 'identified' : 'missed', strokes: n, chance: bot.chance });
   };
   PracticeSession.prototype.expire = function () {
@@ -405,7 +492,7 @@
     NICK_A: NICK_A, NICK_B: NICK_B, REACTION_COUNT: REACTION_COUNT,
     mulberry32: mulberry32, shuffle: shuffle, pickPrompts: pickPrompts, buildChoices: buildChoices,
     StrokeBoard: StrokeBoard, inkLength: inkLength, clampPt: clampPt,
-    scoreGuess: scoreGuess, scoreDraw: scoreDraw, botChance: botChance, botGuess: botGuess,
+    scoreGuess: scoreGuess, scoreDraw: scoreDraw, drawingQuality: drawingQuality, botChance: botChance, botGuess: botGuess,
     PracticeSession: PracticeSession,
     validatePoints: validatePoints, validStrokeId: validStrokeId, validColor: validColor, validWidth: validWidth, nickname: nickname,
     defaultSave: defaultSave, sanitizeSave: sanitizeSave

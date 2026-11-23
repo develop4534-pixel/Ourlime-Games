@@ -516,6 +516,20 @@ function createServer(options = {}) {
     round.resolved = true;
     clearTimer(room.roundTimer);
     room.roundTimer = null;
+    const quality = D.drawingQuality(round.strokes, round.prompt);
+    const recognizable = quality >= 0.88;
+    room.players.forEach((player) => {
+      const answer = round.answers.get(player.id);
+      if (answer && !recognizable && answer.points > 0) {
+        player.score = Math.max(0, player.score - answer.points);
+        answer.points = 0;
+        answer.correct = false;
+      }
+    });
+    round.correct.clear();
+    round.answers.forEach((answer, playerId) => {
+      if (recognizable && answer.correct) round.correct.add(playerId);
+    });
 
     const deltas = {};
     const scores = {};
@@ -531,7 +545,9 @@ function createServer(options = {}) {
       const points = D.scoreDraw({
         strokes: round.strokes.length,
         identified: round.correct.size > 0,
-        colors: colors.size
+        colors: colors.size,
+        quality,
+        recognizable: quality >= 0.88
       });
       drawer.score += points;
       deltas[drawer.id] = points;

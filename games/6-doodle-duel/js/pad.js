@@ -89,15 +89,8 @@
   Pad.prototype._makeBg = function () {
     var n = this.cv.width, c = document.createElement('canvas'); c.width = c.height = n;
     var g = c.getContext('2d');
-    var grd = g.createLinearGradient(0, 0, n, n);
-    ['#ffd1e6', '#ffe3c2', '#fff6b8', '#d2f6cd', '#c9ecff', '#dcd1ff'].forEach(function (col, i, a) { grd.addColorStop(i / (a.length - 1), col); });
-    g.fillStyle = grd; g.fillRect(0, 0, n, n);
-    var wash = g.createRadialGradient(n * .35, n * .3, 0, n * .5, n * .5, n * .75);
-    wash.addColorStop(0, 'rgba(255,255,255,.55)'); wash.addColorStop(1, 'rgba(255,255,255,0)');
-    g.fillStyle = wash; g.fillRect(0, 0, n, n);
-    g.fillStyle = 'rgba(80,60,140,.13)';
-    var step = n / 14, r = Math.max(1, n / 300);
-    for (var y = step / 2; y < n; y += step) for (var x = step / 2; x < n; x += step) { g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fill(); }
+    g.fillStyle = '#ffffff';
+    g.fillRect(0, 0, n, n);
     this.bg = c;
   };
 

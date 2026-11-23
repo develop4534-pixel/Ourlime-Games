@@ -197,6 +197,13 @@ body.land .screen { max-width: 15rem; }
 
 /* ───────── game screen ───────── */
 .screen.game:not([hidden]) { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto minmax(0, 1fr) auto; gap: .45rem; align-items: stretch; justify-content: stretch; align-content: stretch; }
+body.ingame:not(.land) #app {
+  padding: max(.12rem, env(safe-area-inset-top)) max(.12rem, env(safe-area-inset-right)) max(.12rem, env(safe-area-inset-bottom)) max(.12rem, env(safe-area-inset-left));
+}
+body.ingame:not(.land) .screen.game:not([hidden]) {
+  max-width: 12.8rem;
+  gap: .28rem;
+}
 .screen.game > .hud { grid-row: 1; } .screen.game > .timer { grid-row: 2; } .screen.game > .players { grid-row: 3; } .screen.game > .canvas-area { grid-row: 4; } .screen.game > .controls { grid-row: 5; }
 .hud { display: flex; align-items: center; justify-content: space-between; gap: .4rem; }
 .hud .score { display: inline-flex; align-items: center; gap: .3rem; min-width: 2.6rem; justify-content: center; font-size: .56rem; }
@@ -226,7 +233,22 @@ body.land .screen { max-width: 15rem; }
 .pchip.off { opacity: .45; }
 .pchip.got::after { content: "✓"; color: #7dff9a; font-size: .45rem; margin-left: .1rem; }
 
-.canvas-area { container-type: size; min-height: 0; min-width: 0; display: grid; place-items: center; }
+.canvas-area { position: relative; container-type: size; min-height: 0; min-width: 0; display: grid; place-items: center; }
+.pbox .pic,
+.pic-wrap .pic,
+.choice .pic,
+.stage-cover .pic,
+.res-ans .pic {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  overflow: visible;
+  padding: 8%;
+  box-sizing: border-box;
+  transform: none !important;
+  rotate: 0deg !important;
+  writing-mode: horizontal-tb;
+}
 .canvas-wrap { position: relative; width: 90vmin; height: 90vmin; width: min(100cqw, 100cqh); height: min(100cqw, 100cqh); border-radius: .6rem; overflow: hidden; border: .06rem solid var(--line); background: #fff;
   box-shadow: 0 .1rem 0 var(--line), 0 .35rem .8rem rgba(0,0,0,.4); touch-action: none; }
 #pad { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
@@ -262,7 +284,7 @@ body.land .screen { max-width: 15rem; }
 .choices { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
 .choice { position: relative; aspect-ratio: 1.45; min-height: 2.6rem; display: grid; place-items: center; padding: .25rem; border-radius: .6rem; background: linear-gradient(#ffffff, #dfe9ff); border: .06rem solid var(--line);
   box-shadow: 0 .1rem 0 var(--line), 0 .2rem .35rem rgba(0,0,0,.3); transition: transform .12s, background .2s, box-shadow .12s, filter .12s; }
-.choice .pic { width: 70%; height: 82%; max-height: 100%; }
+.choice .pic { width: 72%; height: 82%; max-height: 100%; padding: 7%; box-sizing: border-box; }
 .choice:active:not(:disabled) { transform: translateY(.08rem); box-shadow: 0 .02rem 0 var(--line); }
 .choice:disabled { cursor: default; }
 @media (hover:hover) { .choice:hover:not(:disabled):not(.dim):not(:active) { transform: translateY(-.08rem); filter: brightness(1.05); box-shadow: 0 .16rem 0 var(--line), 0 .35rem .55rem rgba(0,0,0,.35); } }

@@ -28,9 +28,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="preload" href="games/3-bounce-buddie/travi.mp3" as="fetch" type="audio/mpeg" crossorigin="anonymous">
     <link rel="preload" as="image" href="games/4-rift-flip/rift-flip-featured.jpg" fetchpriority="high">
-    <link rel="stylesheet" href="style.css?v=20261121-7">
+    <link rel="stylesheet" href="style.css?v=20261123-3">
 </head>
 <body>
     <div class="hub">
@@ -58,7 +57,10 @@
                     <p class="eyebrow">GAMES OURLIME / HUB</p>
                       <h1>Your next game <span>starts here.</span></h1>
                 </div>
-                <a class="top-link" href="#games">Explore games <span aria-hidden="true">↗</span></a>
+                <div class="topbar-actions">
+                    <button class="music-toggle" id="lobby-music-toggle" type="button" aria-pressed="false">♫ Enable music</button>
+                    <a class="top-link" href="#games">Explore games <span aria-hidden="true">↗</span></a>
+                </div>
             </header>
 
             <section class="featured" aria-labelledby="featured-title">
@@ -273,6 +275,6 @@
             <path d="M16 3.2A12.6 12.6 0 0 0 5.2 22.3L3.5 28.5l6.3-1.6A12.6 12.6 0 1 0 16 3.2Zm0 22.8a10.2 10.2 0 0 1-5.2-1.4l-.4-.2-3.7 1 .9-3.6-.2-.4A10.2 10.2 0 1 1 16 26Zm5.6-7.6c-.3-.2-1.7-.9-2-.9s-.5-.2-.7.2-.8.9-1 1.1-.4.2-.7 0a8.3 8.3 0 0 1-2.4-1.5 9.2 9.2 0 0 1-1.7-2.1c-.2-.3 0-.5.2-.7l.5-.6.3-.5c.1-.2 0-.4 0-.6l-.9-2.1c-.2-.5-.5-.4-.7-.4h-.6c-.2 0-.6.1-.9.4s-1.2 1.2-1.2 2.8 1.2 3.2 1.4 3.4a12 12 0 0 0 4.7 4.2c.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.3-.6.3-1.1.2-1.3 0-.1-.2-.2-.5-.3Z"/>
         </svg>
     </a>
-    <script src="game-cards.js?v=20261121-8" defer></script>
+    <script src="game-cards.js?v=20261123-4" defer></script>
 </body>
 </html>

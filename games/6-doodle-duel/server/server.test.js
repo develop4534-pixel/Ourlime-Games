@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const { after, before, test } = require('node:test');
 const WebSocket = require('ws');
 const { createServer } = require('./server.js');
+const D = require('../js/core.js');
 
 class TestPeer {
   constructor(url) {
@@ -83,6 +84,60 @@ test('health endpoint responds without creating a room', async () => {
   assert.deepEqual(await response.json(), { ok: true, service: 'doodle-duel-server' });
 });
 
+test('drawer scoring rejects drawings that are very different from the prompt', () => {
+  const goodCat = D.DOODLES.cat.map((points) => ({
+    c: '#1e6bff',
+    w: 20,
+    p: points.map(([x, y]) => [x * 10, y * 10])
+  }));
+  const wrongBox = [{
+    c: '#1e6bff',
+    w: 20,
+    p: [[200, 150], [800, 150], [800, 850], [200, 850], [200, 150]]
+  }];
+  const incompleteCat = [{
+    c: '#1e6bff',
+    w: 20,
+    p: [[500, 580], [500, 800]]
+  }];
+  const wrongMoon = [{
+    c: '#1e6bff',
+    w: 20,
+    p: [[140, 640], [180, 410], [260, 300], [410, 260], [570, 280], [620, 500], [650, 760], [650, 760]]
+  }];
+  const wrongCar = [{
+    c: '#1e6bff',
+    w: 20,
+    p: [[300, 500], [700, 500]]
+  }];
+  const goodCar = D.DOODLES.car.map((points) => ({
+    c: '#1e6bff',
+    w: 20,
+    p: points.map(([x, y]) => [x * 10, y * 10])
+  }));
+
+  const goodQuality = D.drawingQuality(goodCat, 'cat');
+  const wrongQuality = D.drawingQuality(wrongBox, 'cat');
+  const incompleteQuality = D.drawingQuality(incompleteCat, 'cat');
+  const goodMoonQuality = D.drawingQuality(D.DOODLES.moon.map((points) => ({
+    c: '#ffd23f',
+    w: 20,
+    p: points.map(([x, y]) => [x * 10, y * 10])
+  })), 'moon');
+  const wrongMoonQuality = D.drawingQuality(wrongMoon, 'moon');
+  const goodCarQuality = D.drawingQuality(goodCar, 'car');
+  const wrongCarQuality = D.drawingQuality(wrongCar, 'car');
+  assert.ok(goodQuality >= 0.88);
+  assert.ok(goodMoonQuality >= 0.88);
+  assert.ok(goodCarQuality >= 0.88);
+  assert.ok(wrongQuality < 0.88);
+  assert.ok(wrongMoonQuality < 0.88);
+  assert.ok(wrongCarQuality < 0.88);
+  assert.equal(incompleteQuality, 0);
+  assert.equal(D.scoreDraw({ strokes: 1, identified: true, colors: 1, recognizable: wrongQuality >= 0.88 }), 0);
+  assert.equal(D.scoreDraw({ strokes: 1, identified: true, colors: 1, recognizable: false }), 0);
+});
+
 test('two players can create a room, join, draw, guess, and finish a round', async (t) => {
   const host = await connectPlayer(0);
   const guest = await connectPlayer(1);
@@ -118,7 +173,11 @@ test('two players can create a room, join, draw, guess, and finish a round', asy
     const answerIndex = guesserRound.choices.indexOf(room.currentRound.prompt);
     assert.notEqual(answerIndex, -1);
 
-    drawer.peer.send({ t: 'stroke', id: 0, c: '#1e6bff', w: 20, pts: [[100, 100]], first: true });
+    const promptStrokes = D.DOODLES[room.currentRound.prompt] || [];
+    promptStrokes.slice(0, D.CONFIG.MAX_STROKES).forEach((points, strokeId) => {
+      const payload = points.map(([x, y]) => [Math.round(x * 10), Math.round(y * 10)]);
+      drawer.peer.send({ t: 'stroke', id: strokeId, c: '#1e6bff', w: 20, pts: payload, first: true });
+    });
     await guesser.peer.waitFor('stroke');
     guesser.peer.send({ t: 'guess', i: answerIndex });
     assert.equal((await guesser.peer.waitFor('ack')).correct, true);
